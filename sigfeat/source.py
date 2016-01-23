@@ -25,11 +25,10 @@ from .metadata import AbstractMetadataMixin
 
 class Source(AbstractParameterMixin, AbstractMetadataMixin):
     blocksize = Parameter(default=1024)
-    noverlap = Parameter(default=512)
+    overlap = Parameter(default=0)
 
     def __init__(self, **params):
         self.init_parameters(params)
-        self.init_metadata()
 
     def blocks(self):
         return NotImplemented
@@ -47,18 +46,34 @@ class ArraySource(Source):
 
 
 class SoundFileSource(Source):
-    sfname = Parameter(default='')
+    name = Parameter(default='')
+    blocksize = Parameter(default=1024)
+    overlap = Parameter(default=0)
+    frames = Parameter(default=-1)
 
     def __init__(self, sf=None, **params):
-        self.init_parameters(params)
-        self._init_soundfile(sf)
-
-    def _init_soundfile(self, sf):
         if isinstance(sf, str):
             from soundfile import SoundFile
-            self._params.update({'sfname': sf})
-            self.sf = SoundFile(sf)
+            params.update({'name': sf})
+            sf = SoundFile(sf)
         else:
-            self.sf = sf
-            if 'sfname' not in self._params:
-                self._params.update({'sfname': sf.name})
+            if 'name' not in params:
+                params.update({'name': sf.name})
+        self.sf = sf
+        metadata = list(self._gen_metadata_from_sf(sf))
+        self.extend_metadata(metadata)
+        self.init_parameters(params)
+
+    @staticmethod
+    def _gen_metadata_from_sf(sf):
+        ATTRS = ['name', 'mode', 'samplerate', 'channels', 'format',
+                 'subtype', 'endian']
+        for attr in ATTRS:
+            yield attr, getattr(sf, attr)
+        yield 'lenth', len(sf)
+
+    def blocks(self):
+        yield from self.sf.blocks(
+            blocksize=self.blocksize,
+            overlap=self.overlap,
+            frames=self.frames)

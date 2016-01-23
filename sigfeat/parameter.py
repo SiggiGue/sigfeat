@@ -3,6 +3,7 @@ class Parameter(object):
         self._default = default
 
     def validate(self, value):
+        """You can override this method for validation of parameter values."""
         return value
 
     @property
@@ -15,15 +16,18 @@ class Parameter(object):
 
 
 class AbstractParameterMixin:
-
     def init_parameters(self, params):
+        """This method must be called to collect all parameters and provide
+        them as attributes.
+
+        """
         self._params = tuple(self._gen_param_values(params))
         for pname, pval in self._params:
-            print(pname, pval)
             self._set_param(pname, pval)
 
     @property
     def params(self):
+        """Returns all parameters."""
         return self._params
 
     def _set_param(self, name, value):

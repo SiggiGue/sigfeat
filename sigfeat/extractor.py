@@ -22,7 +22,7 @@ class Extractor(object):
         sink.receive({
             'features': {
                 v.name: self._get_featuremd(
-                    v) for k, v in self.featureset.items()},
+                    v) for k, v in self.featureset.items() if not v.hidden},
             'source': self._get_sourcemd(source)
         })
         for block, index in source.blocks():
@@ -40,8 +40,8 @@ class Extractor(object):
         return sink
 
     def _only_write_to_sink(self, results):
-        for feature in self.featureset.items():
-            if not feature.write_to_sink:
+        for fid, feature in self.featureset.items():
+            if feature.hidden:
                 results.pop(feature.name)
         return results
 

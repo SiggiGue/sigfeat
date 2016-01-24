@@ -10,11 +10,11 @@ from .metadata import MetadataMixin
 @six.add_metaclass(abc.ABCMeta)
 class Feature(ParameterMixin, MetadataMixin):
     name = Parameter()
-    _hide = False
 
     def __init__(self,  requirements=None, **params):
         if 'name' not in params and not self.name.default:
             params['name'] = self.__class__.__name__
+        self._hidden = False
         self.init_parameters(params)
         self._requirements = requirements
 
@@ -41,9 +41,13 @@ class Feature(ParameterMixin, MetadataMixin):
     def fid(self):
         return self.__class__.__name__, str(self.params)
 
+    @property
+    def hidden(self):
+        return self._hidden
+
 
 def hide(feature):
-    feature._hide = True
+    feature._hidden = True
     return feature
 
 

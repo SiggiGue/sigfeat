@@ -9,7 +9,7 @@ contain metadata for e.g. features and sources.
 """
 
 
-class AbstractMetadataMixin:
+class MetadataMixin:
     _metadata = None
 
     def _init_metadata_list(self):
@@ -36,6 +36,7 @@ class AbstractMetadataMixin:
     @property
     def metadata(self):
         """Returns metadata."""
+        self._init_metadata_list()
         return self._metadata
 
     # def init_metadata(self):

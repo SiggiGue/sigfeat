@@ -1,8 +1,11 @@
-from .parameter import AbstractParameterMixin, Parameter
-from .metadata import AbstractMetadataMixin
+import abc
+import six
+from .parameter import ParameterMixin, Parameter
+from .metadata import MetadataMixin
 
 
-class Source(AbstractParameterMixin, AbstractMetadataMixin):
+@six.add_metaclass(abc.ABCMeta)
+class Source(ParameterMixin, MetadataMixin):
     """Base Source Class.
 
     The parameters are mandatory for all kinds of sources.
@@ -23,25 +26,35 @@ class Source(AbstractParameterMixin, AbstractMetadataMixin):
     def __init__(self, **params):
         self.init_parameters(params)
 
+    @abc.abstractmethod
     def blocks(self):
-        """Must yield blocks."""
+        """Must yield tuples of (block, index)."""
         return NotImplemented
 
 
 class ArraySource(Source):
-    """Source class for iterable arrays."""
+    """Source class for iterable arrays.
+
+    array : ndarray
+        Expects an iterable array with .shape tuple.
+
+    """
 
     def __init__(self, array, name='', **params):
+        from numpy import asarray, product
+        array = asarray(array)
         self.init_parameters(params)
         self._array = array
         self.add_metadata('name', name)
         self.add_metadata('arraylen', len(array))
+        self.add_metadata('channels', product(array.shape[1:]))
+
         self.fetch_metadata_as_attrs()
 
     def blocks(self):
         """Returns generator that yields blocks out of the array."""
         for index in range(0, len(self._array), self.blocksize-self.overlap):
-            yield self._array[index:index+self.blocksize]
+            yield self._array[index:index+self.blocksize], index
 
 
 class SoundFileSource(Source):
@@ -78,7 +91,6 @@ class SoundFileSource(Source):
             sf = SoundFile(sf)
 
         self.sf = sf
-        self.params.update({'samplerate': sf.samplerate})
         metadata = list(self._gen_metadata_from_sf(sf))
         self.extend_metadata(metadata)
         self.fetch_metadata_as_attrs()
@@ -93,14 +105,19 @@ class SoundFileSource(Source):
 
     def blocks(self):
         """Returns generator that yields blocks from the SoundFile."""
-        yield from self.sf.blocks(
+        blocks = self.sf.blocks(
             blocksize=self.blocksize,
             overlap=self.overlap,
             frames=self.frames,
             dtype=self.dtype,
             fill_value=self.fill_value,
             always_2d=self.always_2d)
-
+        blockshift = self.blocksize - self.overlap
+        index = self.sf.tell()
+        for block in blocks:
+            yield block, index
+            index += blockshift
+        self.sf.close()
 
 # Thought about a Block class like:
 # class Block(object):

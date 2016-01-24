@@ -1,3 +1,6 @@
+"""Parameter classes."""
+
+
 class Parameter(object):
     def __init__(self, default=None):
         self._default = default
@@ -15,7 +18,8 @@ class Parameter(object):
         self._default = self._validate(value)
 
 
-class AbstractParameterMixin:
+class ParameterMixin:
+
     def init_parameters(self, params):
         """This method must be called to collect all parameters and provide
         them as attributes.

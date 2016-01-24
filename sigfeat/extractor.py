@@ -1,13 +1,50 @@
 class Extractor(object):
-    def __init__(self, source, sink, featureset):
-        self._source = source
-        self._sink = sink
-        self._featureset = featureset
+    def __init__(self,
+                 featureset=None,
+                 preprocess=None):
+        self.featureset = featureset
+        self.preprocess = preprocess
 
-    def run(self):
-        for block in self._source.blocks():
-            for fid, feature in self._featureset.items():
-                feature.process(block, self._source, self._sink)
+    @staticmethod
+    def _get_featuremd(feat):
+        return dict(
+            params=dict(feat.params),
+            metadata=dict(feat.metadata))
 
+    @staticmethod
+    def _get_sourcemd(src):
+        return dict(
+            metadata=dict(src.metadata),
+            parameters=dict(src.params))
 
-# TODO need preprocess of blocks?
+    def extract(self, source, sink):
+        results = {}
+        sink.receive({
+            'features': {
+                v.name: self._get_featuremd(
+                    v) for k, v in self.featureset.items()},
+            'source': self._get_sourcemd(source)
+        })
+        for block, index in source.blocks():
+            if self.preprocess:
+                block = self.preprocess(block)
+            for fid, feature in self.featureset.items():
+                results[feature.name] = feature.process(
+                    block=block,
+                    index=index,
+                    results=results,
+                    featureset=self.featureset,
+                    sink=sink)
+
+            sink.receive_append(self._only_write_to_sink(results))
+        return sink
+
+    def _only_write_to_sink(self, results):
+        for feature in self.featureset.items():
+            if not feature.write_to_sink:
+                results.pop(feature.name)
+        return results
+
+    def reset(self):
+        self.featureset.reset_features()
+        self.preprocess = self.preprocess.new()

@@ -1,10 +1,20 @@
+import abc
+import six
 import textwrap
+
 from collections import OrderedDict
-from .parameter import AbstractParameterClassMixin
+from .parameter import ParameterMixin, Parameter
+from .metadata import MetadataMixin
 
 
-class Feature(AbstractParameterClassMixin):
+@six.add_metaclass(abc.ABCMeta)
+class Feature(ParameterMixin, MetadataMixin):
+    name = Parameter()
+    _hide = False
+
     def __init__(self,  requirements=None, **params):
+        if 'name' not in params and not self.name.default:
+            params['name'] = self.__class__.__name__
         self.init_parameters(params)
         self._requirements = requirements
 
@@ -16,22 +26,25 @@ class Feature(AbstractParameterClassMixin):
             return self._requirements
         return self.requires()
 
-    def process(self, block, source, sink):
+    @abc.abstractmethod
+    def process(self, block, index, results, featureset, sink):
         print('Processing', self.__class__.__name__)
-        sink.receive(block)
 
     def dependencies(self):
         return self._requires()
 
-    # def output(self):
-    #     return []
-
-    # def input(self):
-    #     return self._requires()
+    def new(self):
+        return self.__class__(
+            requirements=self._requirements, **dict(self.params))
 
     @property
     def fid(self):
         return self.__class__.__name__, str(self.params)
+
+
+def hide(feature):
+    feature._hide = True
+    return feature
 
 
 def gen_dependencies(*features):
@@ -63,3 +76,11 @@ class FeatureSet(OrderedDict):
                     """Features must either instances of
                     Feature or instances of FeatureSet.
                     The given ""{}" is of type {}""".format(feat, type(feat))))
+
+    def reset_features(self):
+        """This creates new instances with same parameters.
+        So features are in initial state.
+
+        """
+        for key, value in self.items():
+            self[key] = value.new()

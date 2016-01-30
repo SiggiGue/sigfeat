@@ -1,30 +1,60 @@
+from .feature import FeatureSet
+
+
 class Extractor(object):
+    """Feature Extractor
+
+    Parameters
+    ----------
+    featureset : FeatureSet/itearable of Features
+    preprocess : Preprocess instance, optional
+
+    Returns
+    -------
+    obj : extractor instance
+
+
+    """
     def __init__(self,
                  featureset=None,
                  preprocess=None):
+        if not isinstance(featureset, FeatureSet):
+            featureset = FeatureSet(*featureset)
+
         self.featureset = featureset
         self.preprocess = preprocess
 
     @staticmethod
-    def _get_featuremd(feat):
+    def _get_pmd(obj):
+        """Returns dict with params and metadata from given ``obj``."""
         return dict(
-            params=dict(feat.params),
-            metadata=dict(feat.metadata))
+            params=dict(obj.params),
+            metadata=dict(obj.metadata))
 
-    @staticmethod
-    def _get_sourcemd(src):
-        return dict(
-            metadata=dict(src.metadata),
-            parameters=dict(src.params))
+    def _get_features_pmd(self):
+        """Returns dict with params and metadata from featureset."""
+        return {v.name: self._get_pmd(
+            v) for k, v in self.featureset.items() if not v.hidden}
 
     def extract(self, source, sink):
-        results = {}
+        """Extracts features from given source into given sink.
+
+        Parameters
+        ----------
+        source : Source instance
+        sink : Sink instance
+
+        Returns
+        -------
+        res : Sink
+            The sink with processed data.
+
+        """
         sink.receive({
-            'features': {
-                v.name: self._get_featuremd(
-                    v) for k, v in self.featureset.items() if not v.hidden},
-            'source': self._get_sourcemd(source)
+            'features': self._get_features_pmd(),
+            'source': self._get_pmd(source)
         })
+        results = {}
         for block, index in source.blocks():
             if self.preprocess:
                 block = self.preprocess(block)
@@ -36,15 +66,19 @@ class Extractor(object):
                     featureset=self.featureset,
                     sink=sink)
 
-            sink.receive_append(self._only_write_to_sink(results))
+            sink.receive_append(self._pop_hidden(results))
         return sink
 
-    def _only_write_to_sink(self, results):
+    def _pop_hidden(self, results):
+        """Returns resluts without hidden feature results."""
         for fid, feature in self.featureset.items():
             if feature.hidden:
                 results.pop(feature.name)
         return results
 
     def reset(self):
+        """Resets the states of features and preprocess.
+        If a new source shall be processed this may be usefull/needed.
+        """
         self.featureset.reset_features()
         self.preprocess = self.preprocess.new()

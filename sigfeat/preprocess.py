@@ -8,6 +8,7 @@ class Preprocess(ParameterMixin):
 
     @abc.abstractmethod
     def process(self, block, source):
+        """Override this method."""
         return block
 
     def new(self):

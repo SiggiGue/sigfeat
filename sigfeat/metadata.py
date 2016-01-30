@@ -10,6 +10,17 @@ contain metadata for e.g. features and sources.
 
 
 class MetadataMixin:
+    """MetadataMixin class
+    Adding metadata functionality to classes.
+    Overrides:
+    ``self._metadata``
+    ``self.metadata``
+    ``_init_metadata_list``
+    ``add_metadata``
+    ``extend_metadata``
+    ``fetch_metadata_as_attrs
+
+    """
     _metadata = None
 
     def _init_metadata_list(self):

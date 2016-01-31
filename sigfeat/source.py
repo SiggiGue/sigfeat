@@ -17,20 +17,22 @@ class Source(ParameterMixin, MetadataMixin):
     The parameters are mandatory for all kinds of sources.
     Every source must implement a `.blocks()` method
     returning a generator that yields the signal blocks.
+    Source must have samplerate and channels as metadata.
 
     Parameters
     ----------
     blocksize : int
     overlap : int
-    samplerate : int
 
     """
     blocksize = Parameter(default=1024)
     overlap = Parameter(default=0)
-    samplerate = Parameter(default=44100)
 
     def __init__(self, **params):
         self.init_parameters(params)
+        self.add_metadata('samplerate', NotImplemented)
+        self.add_metadata('channels', NotImplemented)
+        self.fetch_metadata_as_attrs()
 
     @abc.abstractmethod
     def blocks(self):
@@ -45,14 +47,14 @@ class ArraySource(Source):
     ----------
     array : ndarray
         Expects an iterable array with .shape tuple.
+    samplerate : int
     name : str
     blocksize : int
     overlap : int
-    samplerate : int
-    
+
     """
 
-    def __init__(self, array, name='', **params):
+    def __init__(self, array, samplerate, name='', **params):
         from numpy import asarray, product
         array = asarray(array)
         self.init_parameters(params)
@@ -60,7 +62,7 @@ class ArraySource(Source):
         self.add_metadata('name', name)
         self.add_metadata('arraylen', len(array))
         self.add_metadata('channels', product(array.shape[1:]))
-
+        self.add_metadata('samplerate', samplerate)
         self.fetch_metadata_as_attrs()
 
     def blocks(self):

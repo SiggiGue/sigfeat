@@ -1,4 +1,9 @@
-"""Parameter classes."""
+"""This module implements the Parameter and ist mixin class.
+
+Purpose is to distincuish parameters of objects from other attributes.
+Parameters of instances will be extracted into Sink.
+
+"""
 
 
 class Parameter(object):

@@ -1,3 +1,9 @@
+"""Implements abstract Source and Source subclasses.
+
+- :py:class:`ArraySource`: Source for numpy arrays with slicing functionaliy.
+- :py:class:`SoundFileSource`: Source for SoundFiles.
+"""
+
 import abc
 import six
 from .parameter import ParameterMixin, Parameter

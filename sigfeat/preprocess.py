@@ -1,3 +1,11 @@
+"""Implements a simple preprocess base class.
+
+For processing blocks of a source before extracting features.
+The may be some preemphasis/winowing etc. needed before feature
+extraction. Instances of Preprocess subclasses are consumed by the Extractor.
+
+"""
+
 import abc
 import six
 from .parameter import ParameterMixin

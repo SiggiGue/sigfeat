@@ -1,3 +1,10 @@
+"""Implements abstract Sink class and some usefull Sink subclasses
+
+- :py:class:`DefaultDictSink`:  Sink receiving results in dictionary.
+- :py:class:`Hdf5Sink`: Sink receiving results in a h5py.File instance.
+
+"""
+
 import abc
 import six
 from collections import defaultdict
@@ -8,6 +15,7 @@ import yaml
 
 @six.add_metaclass(abc.ABCMeta)
 class Sink(object):
+
     @abc.abstractclassmethod
     def receive(self, datad):
         """Shall receive dictionaries directly written to source."""
@@ -20,30 +28,88 @@ class Sink(object):
 
 
 class DefaultDictSink(Sink, defaultdict):
+
     def __init__(self):
         defaultdict.__init__(self, list)
 
     def receive(self, datad):
+        """Updates the dict with given ``datad`` dictionary."""
         self.update(datad)
 
     def receive_append(self, resultd):
+        """Appends given ``resultd`` dict to list fields in this dict."""
         for name, res in resultd.items():
             self[name] += [res]
+
+
+class Hdf5Sink(Sink, h5py.File):
+    """Sink writing data directly into a hdf5 file.
+    WARNING: This implementation is quite bad until now!
+    Writing to the file must be performen chunk wise because
+    writing overhead is quite big. Deafaultdict is 10 times
+    faster at the moment.
+
+    Better way would be DefaultDictSink and writing this once into
+    a hdf file.
+    """
+    def __init__(self, *args, **kwargs):
+        h5py.File.__init__(self, *args, **kwargs)
+        self._pos = 0
+        self._chunksize = 10000
+        self._columns = dict()
+
+    def receive(self, datad):
+        """Receives a dictionary and directly writes it into hdf5 file."""
+        _dump_dict_to_hdf(datad, self)
+
+    def receive_append(self, resultd):
+        """Appends the given dictionary to datasets in h5 file.
+        If the key does not exist, a new resizable dataset is created.
+        Else data will be appended to the datasets and if needed datasets
+        will be resized.
+
+        """
+        for name, res in resultd.items():
+            if name not in self._columns:
+                if hasattr(res, '__iter__'):
+                    cols = len(res)
+                else:
+                    cols = 1
+                self._columns[name] = cols
+
+            if name not in self:
+                self.create_dataset(
+                    name,
+                    shape=(self._chunksize, self._columns[name]),
+                    maxshape=(None, self._columns[name]))
+
+            ds = self[name]
+            if ds.shape[0] <= self._pos:
+                ds.resize((ds.shape[0]+self._chunksize, self._columns[name]))
+            ds[self._pos, ...] = res
+            self._pos += 1
+
+    def tighten_length(self):
+        for key, num in self._columns.items():
+            self[key].resize((self._pos, num))
 
 
 def _dump_dict_to_hdf(d, hdf):
     """Adds keys of given dict as groups and values as datasets
     to the given hdf-file (by string or object) or group object.
+
     Parameters
     ----------
     d : dict
         The dictionary containing only string keys and
         data values or dicts again.
     hdf : string (path to file) or `h5py.File()` or `h5py.Group()`
+
     Returns
     -------
     hdf : obj
         `h5py.Group()` or `h5py.File()` instance
+
     """
 
     def _recurse(d, h):
@@ -80,35 +146,3 @@ def _dump_dict_to_hdf(d, hdf):
                     # pass
                     # if this fails again, restructure your data!
     return _recurse(d, hdf)
-
-
-class Hdf5Sink(Sink, h5py.File):
-    def __init__(self, *args, **kwargs):
-        h5py.File.__init__(self, *args, **kwargs)
-        self._pos = 0
-        self._chunksize = 1000
-        self._columns = {}
-
-    def receive(self, datad):
-        _dump_dict_to_hdf(datad, self)
-
-    def receive_append(self, resultd):
-        for name, res in resultd.items():
-            if name not in self._columns:
-                if hasattr(res, '__iter__'):
-                    cols = len(res)
-                else:
-                    cols = 1
-                self._columns[name] = cols
-
-            if name not in self:
-                self.create_dataset(
-                    name,
-                    shape=(self._chunksize, self._columns[name]),
-                    maxshape=(None, self._columns[name]))
-
-            ds = self[name]
-            if ds.shape[0] <= self._pos:
-                ds.resize((ds.shape[0]+self._chunksize, self._columns[name]))
-            ds[self._pos, :] = res
-            self._pos += 1

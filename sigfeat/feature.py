@@ -1,3 +1,11 @@
+"""This module implements the abstract base Feature class.
+
+:py:class:`Feature` is subclassed for implementing Signal Features.
+:py:class:`FeatureSet` is used to create unique collections of multiple
+Feature instances and is used in :py:class:`Extractor`.
+
+"""
+
 import abc
 import six
 import textwrap
@@ -41,19 +49,16 @@ class Feature(ParameterMixin, MetadataMixin):
         """Override this method if your feature depends on other features."""
         return []
 
-    def _requires(self):
-        if self._requirements:
-            return self._requirements
-        return self.requires()
-
     @abc.abstractmethod
     def process(self, block, index, results, featureset, sink):
-        """Override this method returning returning process results."""
+        """Override this method returning process results."""
         print('Processing', self.__class__.__name__)
 
     def dependencies(self):
         """Returns the dependencies of this feature."""
-        return self._requires()
+        if self._requirements:
+            return self._requirements
+        return self.requires()
 
     def new(self):
         """Returns new initial feature instance with same parameters."""
@@ -100,17 +105,11 @@ class FeatureSet(OrderedDict):
         OrderedDict.__init__(self)
         self.add_features(*features)
 
-    @staticmethod
-    def _mkfeatureset(*feats):
-        """Returns an OrderedDict of given features and dependencies."""
-        return OrderedDict((i.fid, i) for i in tuple(
-                    gen_dependencies(*feats)))
-
     def add_features(self, *features):
         """Adds given features to this featureset."""
         for feat in features:
             if isinstance(feat, Feature):
-                self.update(self._mkfeatureset(feat))
+                self.update(self._make_featureset(feat))
             elif isinstance(feat, FeatureSet):
                 self.update(feat)
             else:
@@ -125,3 +124,9 @@ class FeatureSet(OrderedDict):
         """
         for key, value in self.items():
             self[key] = value.new()
+
+    @staticmethod
+    def _make_featureset(*features):
+        """Returns an OrderedDict of given features and dependencies."""
+        return OrderedDict((feat.fid, feat) for feat in tuple(
+                    gen_dependencies(*features)))

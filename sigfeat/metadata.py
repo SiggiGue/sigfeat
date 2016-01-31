@@ -3,7 +3,7 @@
 Adds methods `add_metadata()`, `extend_metadata()` and
 `fetch_metadata_as_attrs()` to the class.
 
-Metadata will be added to sinks. So feature data sets
+Metadata will be extracted into Sink. So created feature datasets
 contain metadata for e.g. features and sources.
 
 """

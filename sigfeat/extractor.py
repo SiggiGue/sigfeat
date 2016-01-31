@@ -53,6 +53,7 @@ class Extractor(object):
                     block=block,
                     index=index,
                     results=results,
+                    source=source,
                     featureset=self.featureset,
                     sink=sink)
 

@@ -41,9 +41,15 @@ class Source(ParameterMixin, MetadataMixin):
 class ArraySource(Source):
     """Source class for iterable arrays.
 
+    Parameters
+    ----------
     array : ndarray
         Expects an iterable array with .shape tuple.
-
+    name : str
+    blocksize : int
+    overlap : int
+    samplerate : int
+    
     """
 
     def __init__(self, array, name='', **params):

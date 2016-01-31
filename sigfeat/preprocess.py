@@ -13,7 +13,7 @@ from .parameter import ParameterMixin
 
 @six.add_metaclass(abc.ABCMeta)
 class Preprocess(ParameterMixin):
-
+    # TODO: Adding MetadataMixin? i think tha makes sense.
     @abc.abstractmethod
     def process(self, block, source):
         """Override this method."""

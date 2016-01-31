@@ -4,6 +4,9 @@
 :py:class:`FeatureSet` is used to create unique collections of multiple
 Feature instances and is used in :py:class:`Extractor`.
 
+TODO: What happens if i have a hidden feature but add a instance of tha same
+that is not hidden? Mus be solved in the FeatureSet!
+
 """
 
 import abc

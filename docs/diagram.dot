@@ -1,13 +1,11 @@
 digraph sigfeat {
-  F -> FS [label=" N" fontname="Open Sans"];
-  FS -> E [label=" 1" fontname="Open Sans"] ;
+  F -> E [label=" N" fontname="Open Sans"];
   Pre -> E [label=" 1" fontname="Open Sans"];
   Src -> E [label=" 1" fontname="Open Sans"];
   E -> Snk;
   P[label="Parameter" fontname="Open Sans"];
   M[label="Metadata" fontname="Open Sans"];
   F[label="Feature" shape=box fontname="Open Sans"];
-  FS[label="FeatureSet" shape=box fontname="Open Sans"];
   E[label="Extractor" shape=box fontname="Open Sans"];
   Pre[label="Preprocess" shape=box fontname="Open Sans"];
   Snk[label="Sink" shape=box fontname="Open Sans"];

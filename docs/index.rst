@@ -12,13 +12,13 @@ Focused on acoustic signals.
 
 Follows a clear design:
 
-- Source
-- Feature
-- Extractor
-- Sink
+- **Source**
+- **Feature**
+- **Extractor**
+- **Sink**
 
 
-With Parameters, Metadata handling and Preprocessing functionality.
+With **Parameters**, **Metadata** handling and **Preprocessing** capability.
 All needed information will be written to the Sink in a clear structure.
 
 
@@ -30,6 +30,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   gettingstarted
+   examples
    api
 
 

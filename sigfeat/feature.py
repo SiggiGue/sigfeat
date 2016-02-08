@@ -132,4 +132,4 @@ class FeatureSet(OrderedDict):
     def _make_featureset(*features):
         """Returns an OrderedDict of given features and dependencies."""
         return OrderedDict((feat.fid, feat) for feat in tuple(
-                    gen_dependencies(*features)))
+            gen_dependencies(*features)))

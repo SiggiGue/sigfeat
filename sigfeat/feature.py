@@ -18,8 +18,22 @@ from .parameter import ParameterMixin, Parameter
 from .metadata import MetadataMixin
 
 
+class _IndividualBorgs(object):
+    _instances = {}
+
+    def __new__(cls, *args, **kwargs):
+        fid = cls.__name__, str(args), str(kwargs)
+        if fid not in cls._instances:
+            instance = object.__new__(cls)
+            instance._fid = fid
+            cls._instances[fid] = instance
+        else:
+            instance = cls._instances[fid]
+        return instance
+
+
 @six.add_metaclass(abc.ABCMeta)
-class Feature(ParameterMixin, MetadataMixin):
+class Feature(ParameterMixin, MetadataMixin, _IndividualBorgs):
     """Abstract Feature Base Class
 
     Parameters
@@ -37,8 +51,12 @@ class Feature(ParameterMixin, MetadataMixin):
     name = Parameter()
 
     def __init__(self,  requirements=None, **params):
-        if 'name' not in params and not self.name.default:
-            params['name'] = self.__class__.__name__
+        if 'name' not in params:
+            name = self.__class__.__name__
+            if hasattr(self.name, 'default'):
+                name = self.name.default
+            params['name'] = name
+
         self._hidden = False
         self.init_parameters(params)
         self._requirements = requirements
@@ -65,6 +83,7 @@ class Feature(ParameterMixin, MetadataMixin):
 
     def new(self):
         """Returns new initial feature instance with same parameters."""
+
         return self.__class__(
             requirements=self._requirements, **dict(self.params))
 

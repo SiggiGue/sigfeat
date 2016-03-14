@@ -11,7 +11,6 @@ that is not hidden? Mus be solved in the FeatureSet!
 
 import abc
 import six
-import textwrap
 
 from collections import OrderedDict
 from .parameter import ParameterMixin, Parameter
@@ -33,19 +32,26 @@ class Feature(ParameterMixin, MetadataMixin):
     If your implemented feature depends on the results of another feature,
     you must override the :py:meth:`requires` method returning an iterable
     of feature instances.
+
     """
     name = Parameter()
 
-    def __init__(self,  requirements=None, **params):
-        if 'name' not in params and not self.name.default:
-            params['name'] = self.__class__.__name__
+    def __init__(self,  **params):
+        if 'name' not in params:
+            name = self.__class__.__name__
+            if hasattr(self.name, 'default'):
+                name = self.name.default
+            params['name'] = name
+
         self._hidden = False
         self.init_parameters(params)
-        self._requirements = requirements
-        self.init()
+        self.validate_names()
 
-    def init(self):
-        """Override this method if your feature needs some initialization."""
+    def start(self, *args, **kwargs):
+        """Override this method if your feature needs some initialization.
+        Extractor will give you source, sink and so on.
+
+        """
         pass
 
     def requires(self):
@@ -53,20 +59,51 @@ class Feature(ParameterMixin, MetadataMixin):
         return []
 
     @abc.abstractmethod
-    def process(self, block, index, results, featureset, sink):
+    def process(self, index, block, results):
         """Override this method returning process results."""
         print('Processing', self.__class__.__name__)
 
     def dependencies(self):
-        """Returns the dependencies of this feature."""
-        if self._requirements:
-            return self._requirements
-        return self.requires()
+        """Yields the dependencies of this feature."""
+        yield self
+        for feature in self.requires():
+            yield from feature.dependencies()
+
+    def featureset(self, new=False):
+        """Returns and ordered dict of all features unique in parameters.
+        The dict is ordered by the dependency tree order.
+
+        Parameters
+        ----------
+        new : boolean
+            All features will be reinitialized.
+
+        Returns
+        -------
+        featdict : OrderedDict
+            Keys are ``fid`` and values are feature instances.
+
+        """
+        deps = reversed(tuple(self.dependencies()))
+        if new:
+            deps = [d.new() for d in deps]
+        return OrderedDict((feat.fid, feat) for feat in deps)
+
+    def validate_names(self):
+        """Checks for uniqueness of feature names in all dependent features."""
+        names = [f.name for f in self.featureset().values()]
+        if not len(names) == len(set(names)):
+            raise ValueError(
+                'You have defined duplicate feature names '
+                'this is not allowed: {}.'.format(names))
 
     def new(self):
         """Returns new initial feature instance with same parameters."""
         return self.__class__(
             requirements=self._requirements, **dict(self.params))
+
+    def hide(self, b):
+        self._hidden = bool(b)
 
     @property
     def fid(self):
@@ -81,55 +118,27 @@ class Feature(ParameterMixin, MetadataMixin):
 
 def hide(feature):
     """Returns hidden feature."""
-    feature._hidden = True
+    feature.hide(True)
     return feature
 
 
-def gen_dependencies(*features):
-    """Yields dependencies of the given features and the features itself."""
-    for feature in features:
-        for dep in feature.dependencies():
-            yield from gen_dependencies(dep)
-        yield feature
+# Singletons for features was planned, but not
+# implemented because stateful features would not
+# be threadsafe. But the baseclass for
+# parametrized singletons is implemented in
+# _IndividualBorgs and can be subclassed if
+# multithreading is notneeded.
 
+class _IndividualBorgs(object):
+    "Add this as subclass if you want parametrized singletons."
+    _instances = {}
 
-class FeatureSet(OrderedDict):
-    """FeatureSet
-    Container for features, resolving the dependencies and
-    ensuring uniqueness of features to be processed.
-
-    Parameters
-    ----------
-    *features : instances of Feature
-
-    """
-
-    def __init__(self, *features):
-        OrderedDict.__init__(self)
-        self.add_features(*features)
-
-    def add_features(self, *features):
-        """Adds given features to this featureset."""
-        for feat in features:
-            if isinstance(feat, Feature):
-                self.update(self._make_featureset(feat))
-            elif isinstance(feat, FeatureSet):
-                self.update(feat)
-            else:
-                raise ValueError(textwrap.dedent(
-                    """Features must either instances of
-                    Feature or instances of FeatureSet.
-                    The given ""{}" is of type {}""".format(feat, type(feat))))
-
-    def reset_features(self):
-        """This creates new instances with same parameters.
-        So features are in initial state.
-        """
-        for key, value in self.items():
-            self[key] = value.new()
-
-    @staticmethod
-    def _make_featureset(*features):
-        """Returns an OrderedDict of given features and dependencies."""
-        return OrderedDict((feat.fid, feat) for feat in tuple(
-                    gen_dependencies(*features)))
+    def __new__(cls, *args, **kwargs):
+        fid = cls.__name__, str(args), str(kwargs)
+        if fid not in cls._instances:
+            instance = object.__new__(cls)
+            instance._fid = fid
+            cls._instances[fid] = instance
+        else:
+            instance = cls._instances[fid]
+        return instance

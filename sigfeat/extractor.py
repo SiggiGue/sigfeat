@@ -5,7 +5,15 @@ and is used to extract the Features from given sources into
 Sinks.
 
 """
-from .feature import FeatureSet
+
+
+def features_to_featureset(features, new=False):
+    """Returns an featureset of given features distinct in parameters."""
+    featsets = (feat.featureset(new=new) for feat in features)
+    featureset = next(featsets)
+    for fset in featsets:
+        featureset.update(fset)
+    return featureset
 
 
 class Extractor(object):
@@ -13,17 +21,15 @@ class Extractor(object):
 
     Parameters
     ----------
-    featureset : FeatureSet/itearable of Features
+    features : FeatureSet/itearable of Features
     preprocess : Preprocess instance, optional
 
     """
-    def __init__(self,
-                 featureset=None,
-                 preprocess=None):
-        if not isinstance(featureset, FeatureSet):
-            featureset = FeatureSet(*featureset)
-
-        self.featureset = featureset
+    def __init__(self, *features, preprocess=None):
+        # if not isinstance(featureset, FeatureSet):
+        #     featureset = FeatureSet(*featureset)
+        self.features = features
+        self.featureset = features_to_featureset(self.features)
         self.preprocess = preprocess
 
     def extract(self, source, sink):
@@ -44,18 +50,17 @@ class Extractor(object):
             'features': self._get_features_pmd(),
             'source': self._get_pmd(source)
         })
+        for fid, feature in self.featureset.items():
+            feature.start(source=source, sink=sink)
         results = {}
         for block, index in source.blocks():
             if self.preprocess:
                 block = self.preprocess(block)
             for fid, feature in self.featureset.items():
                 results[feature.name] = feature.process(
-                    block=block,
                     index=index,
-                    results=results,
-                    source=source,
-                    featureset=self.featureset,
-                    sink=sink)
+                    block=block,
+                    results=results)
 
             sink.receive_append(self._pop_hidden(results))
         return sink
@@ -64,7 +69,7 @@ class Extractor(object):
         """Resets the states of features and preprocess.
         If a new source shall be processed this may be usefull/needed.
         """
-        self.featureset.reset_features()
+        self.featureset = features_to_featureset(new=True)
         self.preprocess = self.preprocess.new()
 
     @staticmethod

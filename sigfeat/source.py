@@ -28,15 +28,18 @@ class Source(ParameterMixin, MetadataMixin):
     blocksize = Parameter(default=1024)
     overlap = Parameter(default=0)
 
-    def __init__(self, **params):
-        self.init_parameters(params)
-        self.add_metadata('samplerate', NotImplemented)
-        self.add_metadata('channels', NotImplemented)
+    def __init__(self, **parameters):
+        self.unroll_parameters(parameters)
+        # self.add_metadata('samplerate', NotImplemented)
+        # self.add_metadata('channels', NotImplemented)
         self.fetch_metadata_as_attrs()
 
+    def __iter__(self):
+        return self.generate()
+
     @abc.abstractmethod
-    def blocks(self):
-        """Must yield tuples of (block, index)."""
+    def generate(self):
+        """Must yield Result."""
         return NotImplemented
 
 
@@ -54,10 +57,10 @@ class ArraySource(Source):
 
     """
 
-    def __init__(self, array, samplerate, name='', **params):
+    def __init__(self, array, samplerate, name='', **parameters):
         from numpy import asarray, product
         array = asarray(array)
-        self.init_parameters(params)
+        self.unroll_parameters(parameters)
         self._array = array
         self.add_metadata('name', name)
         self.add_metadata('arraylen', len(array))
@@ -65,7 +68,7 @@ class ArraySource(Source):
         self.add_metadata('samplerate', samplerate)
         self.fetch_metadata_as_attrs()
 
-    def blocks(self):
+    def generate(self):
         """Returns generator that yields blocks out of the array."""
         for index in range(0, len(self._array), self.blocksize-self.overlap):
             yield self._array[index:index+self.blocksize], index
@@ -98,8 +101,8 @@ class SoundFileSource(Source):
     dtype = Parameter(default='float64')
     always_2d = Parameter(default=True)
 
-    def __init__(self, sf=None, **params):
-        self.init_parameters(params)
+    def __init__(self, sf=None, **parameters):
+        self.init_parameters(parameters)
         if isinstance(sf, str):
             from soundfile import SoundFile
             sf = SoundFile(sf)
@@ -117,7 +120,7 @@ class SoundFileSource(Source):
             yield attr, getattr(sf, attr)
         yield 'length', len(sf)
 
-    def blocks(self):
+    def generate(self):
         """Returns generator that yields blocks from the SoundFile."""
         blocks = self.sf.blocks(
             blocksize=self.blocksize,

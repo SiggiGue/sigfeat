@@ -24,32 +24,36 @@ class Feature(ParameterMixin, MetadataMixin):
     Parameters
     ----------
     name : str
-    requirements : optional to def requires(self)
 
     Notes
     -----
     At least the :py:meth:`process` method must be overridden.
     If your implemented feature depends on the results of another feature,
     you must override the :py:meth:`requires` method returning an iterable
-    of feature instances.
+    e.g. list of feature instances.
 
     """
     name = Parameter()
 
-    def __init__(self,  **params):
-        if 'name' not in params:
+    def __init__(self,  **parameters):
+        """Returns a Feature instance.
+        Provide feature-parameters as keyword arguments.
+        """
+        self._hidden = False
+        if 'name' not in parameters:
             name = self.__class__.__name__
             if hasattr(self.name, 'default'):
-                name = self.name.default
-            params['name'] = name
+                if self.name.default:
+                    name = self.name.default
+            parameters['name'] = name
 
-        self._hidden = False
-        self.init_parameters(params)
-        self.validate_names()
+        self.unroll_parameters(parameters)
+        self.validate_name()
 
     def start(self, *args, **kwargs):
         """Override this method if your feature needs some initialization.
-        Extractor will give you source, sink and so on.
+
+        Extractor will give you kwargs source, sink.
 
         """
         pass
@@ -59,9 +63,13 @@ class Feature(ParameterMixin, MetadataMixin):
         return []
 
     @abc.abstractmethod
-    def process(self, index, block, results):
+    def process(self, data, resultsd):
         """Override this method returning process results."""
         print('Processing', self.__class__.__name__)
+
+    def on_finished(self, *args, **kwargs):
+        """Override this method to be run after extraction."""
+        pass
 
     def dependencies(self):
         """Yields the dependencies of this feature."""
@@ -70,7 +78,8 @@ class Feature(ParameterMixin, MetadataMixin):
             yield from feature.dependencies()
 
     def featureset(self, new=False):
-        """Returns and ordered dict of all features unique in parameters.
+        """Returns an ordered dict of all features unique in parameters.
+
         The dict is ordered by the dependency tree order.
 
         Parameters
@@ -89,8 +98,8 @@ class Feature(ParameterMixin, MetadataMixin):
             deps = [d.new() for d in deps]
         return OrderedDict((feat.fid, feat) for feat in deps)
 
-    def validate_names(self):
-        """Checks for uniqueness of feature names in all dependent features."""
+    def validate_name(self):
+        """Checks for uniqueness of feature name in all dependent features."""
         names = [f.name for f in self.featureset().values()]
         if not len(names) == len(set(names)):
             raise ValueError(
@@ -99,16 +108,17 @@ class Feature(ParameterMixin, MetadataMixin):
 
     def new(self):
         """Returns new initial feature instance with same parameters."""
-        return self.__class__(
-            requirements=self._requirements, **dict(self.params))
+        return self.__class__(**dict(self.parameters))
 
-    def hide(self, b):
+    def hide(self, b=True):
+        """Hide the feature."""
         self._hidden = bool(b)
+        return self
 
     @property
     def fid(self):
         """Returns the feature identifying tuple."""
-        return self.__class__.__name__, str(self.params)
+        return self.__class__.__name__, str(self.parameters)
 
     @property
     def hidden(self):
@@ -116,18 +126,12 @@ class Feature(ParameterMixin, MetadataMixin):
         return self._hidden
 
 
-def hide(feature):
-    """Returns hidden feature."""
-    feature.hide(True)
-    return feature
-
-
 # Singletons for features was planned, but not
 # implemented because stateful features would not
 # be threadsafe. But the baseclass for
 # parametrized singletons is implemented in
 # _IndividualBorgs and can be subclassed if
-# multithreading is notneeded.
+# multithreading is not needed.
 
 class _IndividualBorgs(object):
     "Add this as subclass if you want parametrized singletons."

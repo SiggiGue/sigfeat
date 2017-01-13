@@ -1,6 +1,6 @@
-"""This module implements the Parameter and ist mixin class.
+"""This module implements the Parameter and its mixin class.
 
-Purpose is to distincuish parameters of objects from other attributes.
+Purpose is, to distinguish parameters of objects from other attributes.
 Parameters of instances will be extracted into Sink.
 
 """
@@ -33,29 +33,30 @@ class ParameterMixin:
 
     """
 
-    def init_parameters(self, params):
+    def unroll_parameters(self, parameters):
         """This method must be called to collect all parameters and provide
         them as attributes.
 
         By calling this function defined parameters will become attributes
         with values not beeing of type Parameter anymore.
-        But all parameters will be placed in self._params as well.
+        But all parameters will be placed in self._parameters as well.
+
         """
-        self._params = tuple(self._gen_param_values(params))
-        for pname, pval in self._params:
+        self._parameters = tuple(self._gen_param_values(parameters))
+        for pname, pval in self._parameters:
             self._set_param(pname, pval)
 
     @property
-    def params(self):
+    def parameters(self):
         """Returns all parameters."""
-        return self._params
+        return self._parameters
 
     def _set_param(self, name, value):
         """Sets key value pair as attribut of self."""
         return setattr(self, name, value)
 
     @classmethod
-    def _gen_params(cls):
+    def _gen_parameters(cls):
         """Yields parameters form cls."""
         for name in dir(cls):
             obj = getattr(cls, name)
@@ -63,9 +64,9 @@ class ParameterMixin:
                 yield name, obj
 
     @classmethod
-    def _gen_param_values(cls, paramsd):
-        for pname, pobj in cls._gen_params():
-            if pname in paramsd:
-                yield pname, pobj.validate(paramsd[pname])
+    def _gen_param_values(cls, parametersd):
+        for pname, pobj in cls._gen_parameters():
+            if pname in parametersd:
+                yield pname, pobj.validate(parametersd[pname])
             else:
                 yield pname, pobj.default

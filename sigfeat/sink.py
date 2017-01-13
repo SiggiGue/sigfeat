@@ -27,10 +27,11 @@ class Sink(object):
         pass
 
 
-class DefaultDictSink(Sink, defaultdict):
+class DefaultDictSink(Sink, dict):
 
     def __init__(self):
-        defaultdict.__init__(self, list)
+        self.results = defaultdict(list)
+        self['results'] = self.results
 
     def receive(self, datad):
         """Updates the dict with given ``datad`` dictionary."""
@@ -39,7 +40,7 @@ class DefaultDictSink(Sink, defaultdict):
     def receive_append(self, resultd):
         """Appends given ``resultd`` dict to list fields in this dict."""
         for name, res in resultd.items():
-            self[name] += [res]
+            self.results[name] += [res]
 
 
 class Hdf5Sink(Sink, h5py.File):
@@ -125,7 +126,7 @@ def _dump_dict_to_hdf(d, hdf):
 
                 if hasattr(v, '__iter__'):
                     if all(isinstance(i, datetime) for i in v):
-                        print(all(isinstance(i, datetime) for i in v))
+                        # print(all(isinstance(i, datetime) for i in v))
                         v = [item.timestamp() for item in v]
                         isdt = True
 

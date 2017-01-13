@@ -6,6 +6,8 @@ Sinks.
 
 """
 
+from .result import Result
+
 
 def features_to_featureset(features, new=False):
     """Returns an featureset of given features distinct in parameters."""
@@ -32,7 +34,19 @@ class Extractor(object):
         self.featureset = features_to_featureset(self.features)
         self.preprocess = preprocess
 
-    def extract(self, source, sink):
+    def _extract(self, source):
+        result = Result()
+        for data in source:
+            if self.preprocess:
+                data = self.preprocess(data)
+            for fid, feature in self.featureset.items():
+                output = feature.process(
+                    data,
+                    result=result)
+                result._setitem(feature.name, output)
+            yield result
+
+    def extract(self, source, sink=None):
         """Extracts features from given source into given sink.
 
         Parameters
@@ -46,42 +60,39 @@ class Extractor(object):
             The sink with processed data.
 
         """
-        sink.receive({
-            'features': self._get_features_pmd(),
-            'source': self._get_pmd(source)
-        })
+        if sink is not None:
+            sink.receive({
+                'features': self.get_features_parameters_and_metadata(),
+                'source': self.get_parameters_and_metadata(source)
+            })
+
         for fid, feature in self.featureset.items():
             feature.start(source=source, sink=sink)
-        results = {}
-        for block, index in source.blocks():
-            if self.preprocess:
-                block = self.preprocess(block)
-            for fid, feature in self.featureset.items():
-                results[feature.name] = feature.process(
-                    index=index,
-                    block=block,
-                    results=results)
 
-            sink.receive_append(self._pop_hidden(results))
+        if sink is None:
+            return self._extract(source)
+        else:
+            for result in self._extract(source):
+                sink.receive_append(self._pop_hidden(result))
         return sink
 
     def reset(self):
         """Resets the states of features and preprocess.
         If a new source shall be processed this may be usefull/needed.
         """
-        self.featureset = features_to_featureset(new=True)
+        self.featureset = features_to_featureset(self.features, new=True)
         self.preprocess = self.preprocess.new()
 
     @staticmethod
-    def _get_pmd(obj):
-        """Returns dict with params and metadata from given ``obj``."""
+    def get_parameters_and_metadata(obj):
+        """Returns dict with parameters and metadata from given ``obj``."""
         return dict(
-            params=dict(obj.params),
+            parameters=dict(obj.parameters),
             metadata=dict(obj.metadata))
 
-    def _get_features_pmd(self):
-        """Returns dict with params and metadata from self.featureset."""
-        return {v.name: self._get_pmd(
+    def get_features_parameters_and_metadata(self):
+        """Returns dict with parameters and metadata from self.featureset."""
+        return {v.name: self.get_parameters_and_metadata(
             v) for k, v in self.featureset.items() if not v.hidden}
 
     def _pop_hidden(self, results):

@@ -20,7 +20,7 @@ class Preprocess(ParameterMixin):
         return block
 
     def new(self):
-        return self.__class__(**dict(self.params))
+        return self.__class__(**dict(self.parameters))
 
 
 class WindowPreprocess(Preprocess):

@@ -7,7 +7,7 @@
 import abc
 import six
 from .parameter import ParameterMixin, Parameter
-from .metadata import MetadataMixin
+from ._metadata import MetadataMixin
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -70,7 +70,11 @@ class ArraySource(Source):
 
     def generate(self):
         """Returns generator that yields blocks out of the array."""
-        for index in range(0, len(self._array), self.blocksize-self.overlap):
+        indexrange = range(
+            0,
+            len(self._array)-self.blocksize,
+            self.blocksize-self.overlap)
+        for index in indexrange:
             yield self._array[index:index+self.blocksize], index
 
 

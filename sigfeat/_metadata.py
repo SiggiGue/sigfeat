@@ -49,20 +49,3 @@ class MetadataMixin:
         """Returns metadata."""
         self._init_metadata_list()
         return self._metadata
-
-    # def init_metadata(self):
-    #     self._metadata = list(self._gen_metadata())
-    #
-    # def _gen_metadata(self):
-    #     for name in dir(self):
-    #         obj = getattr(self, name)
-    #         if isinstance(obj, Metadata):
-    #             yield obj.name, obj.value
-
-
-# class Metadata(object):
-#     __slots__ = ('name', 'value')
-#
-#     def __init__(self, name, value):
-#         self.name = name
-#         self.value = value

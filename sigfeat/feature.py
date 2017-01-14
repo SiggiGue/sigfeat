@@ -12,9 +12,10 @@ that is not hidden? Mus be solved in the FeatureSet!
 import abc
 import six
 
+from inspect import isclass
 from collections import OrderedDict
-from .parameter import ParameterMixin, Parameter
-from .metadata import MetadataMixin
+from .parameter import ParameterMixin
+from ._metadata import MetadataMixin
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -33,27 +34,32 @@ class Feature(ParameterMixin, MetadataMixin):
     e.g. list of feature instances.
 
     """
-    name = Parameter()
+    _hidden = False
 
-    def __init__(self,  **parameters):
+    def __init__(self,  name=None, requirements=None, **parameters):
         """Returns a Feature instance.
         Provide feature-parameters as keyword arguments.
         """
-        self._hidden = False
-        if 'name' not in parameters:
+        if not name:
             name = self.__class__.__name__
-            if hasattr(self.name, 'default'):
-                if self.name.default:
-                    name = self.name.default
-            parameters['name'] = name
+            # if hasattr(self.name, 'default'):
+            #     if self.name.default:
+            #         name = self.name.default
+        self.name = name
+        if requirements:
+            self._requirements = list(requirements)
+        else:
+            self._requirements = list()
 
         self.unroll_parameters(parameters)
         self.validate_name()
 
-    def start(self, *args, **kwargs):
+        self.add_metadata('name', self.name)
+
+    def on_start(self, source, featureset, sink):
         """Override this method if your feature needs some initialization.
 
-        Extractor will give you kwargs source, sink.
+        Extractor will give you kwargs source, featureset and sink.
 
         """
         pass
@@ -63,7 +69,7 @@ class Feature(ParameterMixin, MetadataMixin):
         return []
 
     @abc.abstractmethod
-    def process(self, data, resultsd):
+    def process(self, data, result):
         """Override this method returning process results."""
         print('Processing', self.__class__.__name__)
 
@@ -74,11 +80,33 @@ class Feature(ParameterMixin, MetadataMixin):
     def dependencies(self):
         """Yields the dependencies of this feature."""
         yield self
-        for feature in self.requires():
-            yield from feature.dependencies()
+        if self._requirements:
+            requirements = self._requirements
+        else:
+            requirements = self.requires()
+        for feature in requirements:
+            if not isclass(feature):
+                yield from feature.dependencies()
+            else:
+                yield feature
 
-    def featureset(self, new=False):
-        """Returns an ordered dict of all features unique in parameters.
+    def gen_dependencies_instances(self, err_missing=True):
+        """Checks deps for being instance or class and yields instances."""
+        deps = list(self.dependencies())
+        for dep in deps:
+            if isclass(dep):
+                isin = [isinstance(d, dep) for d in deps]
+                if any(isin):
+                    yield deps[deps.index(isin)]
+                elif err_missing:
+                    raise ValueError(
+                         'Must provide a Feature Instance of {}'.format(
+                             dep))
+            else:
+                yield dep
+
+    def featureset(self, new=False, err_missing=True):
+        """Returns an ordered dict of all features unique in name.
 
         The dict is ordered by the dependency tree order.
 
@@ -93,14 +121,14 @@ class Feature(ParameterMixin, MetadataMixin):
             Keys are ``fid`` and values are feature instances.
 
         """
-        deps = reversed(tuple(self.dependencies()))
+        deps = reversed(tuple(self.gen_dependencies_instances(err_missing)))
         if new:
             deps = [d.new() for d in deps]
-        return OrderedDict((feat.fid, feat) for feat in deps)
+        return OrderedDict((feat.name, feat) for feat in deps)
 
     def validate_name(self):
         """Checks for uniqueness of feature name in all dependent features."""
-        names = [f.name for f in self.featureset().values()]
+        names = [f.name for f in self.featureset(err_missing=False).values()]
         if not len(names) == len(set(names)):
             raise ValueError(
                 'You have defined duplicate feature names '
@@ -125,6 +153,40 @@ class Feature(ParameterMixin, MetadataMixin):
         """Returns whether the feature is hidden or not."""
         return self._hidden
 
+    def __repr__(self):
+        return "".join(self.fid)
+
+
+class HiddenFeature(Feature):
+    _hidden = True
+
+
+def validate_featureset(featureset):
+    """Returns true if all required feature instances are available."""
+    for name, feature in featureset.items():
+        for req in feature.requires():
+            if hasattr(req, 'name') and isinstance(req.name, str):
+                name = req.name
+            else:
+                name = req.__name__
+
+            if name not in featureset:
+                raise ValueError(
+                    'You must provide a feature instance of {}'.format(req))
+    return True
+
+
+def features_to_featureset(features, new=False, err_missing=True):
+    """Returns an featureset of given features distinct in names."""
+    featsets = (feat.featureset(
+        new=new, err_missing=False) for feat in features)
+    featureset = next(featsets)
+    for fset in featsets:
+        featureset.update(fset)
+    if err_missing:
+        validate_featureset(features)
+    return featureset
+
 
 # Singletons for features was planned, but not
 # implemented because stateful features would not
@@ -132,6 +194,7 @@ class Feature(ParameterMixin, MetadataMixin):
 # parametrized singletons is implemented in
 # _IndividualBorgs and can be subclassed if
 # multithreading is not needed.
+
 
 class _IndividualBorgs(object):
     "Add this as subclass if you want parametrized singletons."

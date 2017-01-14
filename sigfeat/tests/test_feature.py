@@ -67,7 +67,7 @@ def test_duplicate_name_error():
 
 def test_fid():
     a = A(name='test_name', param=99)
-    assert a.fid == (a.__class__.__name__, str(a.params))
+    assert a.fid == (a.__class__.__name__, str(a.parameters))
 
 
 def test_hide_and_hidden():

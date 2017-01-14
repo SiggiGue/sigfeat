@@ -7,15 +7,7 @@ Sinks.
 """
 
 from .result import Result
-
-
-def features_to_featureset(features, new=False):
-    """Returns an featureset of given features distinct in parameters."""
-    featsets = (feat.featureset(new=new) for feat in features)
-    featureset = next(featsets)
-    for fset in featsets:
-        featureset.update(fset)
-    return featureset
+from .feature import features_to_featureset
 
 
 class Extractor(object):
@@ -42,7 +34,7 @@ class Extractor(object):
             for fid, feature in self.featureset.items():
                 output = feature.process(
                     data,
-                    result=result)
+                    result)
                 result._setitem(feature.name, output)
             yield result
 
@@ -67,7 +59,10 @@ class Extractor(object):
             })
 
         for fid, feature in self.featureset.items():
-            feature.start(source=source, sink=sink)
+            feature.on_start(
+                source,
+                self.featureset,
+                sink)
 
         if sink is None:
             return self._extract(source)

@@ -26,12 +26,18 @@ class Parameter(object):
         """Sets the default value, validates value first."""
         self._default = self._validate(value)
 
+    def __repr__(self):
+        return "{}(default={})".format(
+            self.__class__.__name__,
+            str(self.default))
+
 
 class ParameterMixin:
     """ParameterMixin class
     Adds Parameter functionality to classes.
 
     """
+    _parameters = None
 
     def unroll_parameters(self, parameters):
         """This method must be called to collect all parameters and provide
@@ -49,11 +55,18 @@ class ParameterMixin:
     @property
     def parameters(self):
         """Returns all parameters."""
-        return self._parameters
+        if self._parameters:
+            return self._parameters
+        else:
+            return tuple(self._gen_parameters())
 
     def _set_param(self, name, value):
         """Sets key value pair as attribut of self."""
         return setattr(self, name, value)
+
+    @classmethod
+    def get_class_parameters(cls):
+        return tuple(cls._gen_parameters())
 
     @classmethod
     def _gen_parameters(cls):

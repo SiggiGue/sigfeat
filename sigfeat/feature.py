@@ -184,7 +184,7 @@ def features_to_featureset(features, new=False, err_missing=True):
     for fset in featsets:
         featureset.update(fset)
     if err_missing:
-        validate_featureset(features)
+        validate_featureset(featureset)
     return featureset
 
 

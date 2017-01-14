@@ -52,11 +52,6 @@ class Extractor(object):
             The sink with processed data.
 
         """
-        if sink is not None:
-            sink.receive({
-                'features': self.get_features_parameters_and_metadata(),
-                'source': self.get_parameters_and_metadata(source)
-            })
 
         for fid, feature in self.featureset.items():
             feature.on_start(
@@ -69,6 +64,15 @@ class Extractor(object):
         else:
             for result in self._extract(source):
                 sink.receive_append(self._pop_hidden(result))
+
+        sink.receive({
+            'hiddenfeatures':
+                self.get_features_parameters_and_metadata(hidden=True),
+            'features':
+                self.get_features_parameters_and_metadata(hidden=False),
+            'source':
+                self.get_parameters_and_metadata(source)
+            })
         return sink
 
     def reset(self):
@@ -85,10 +89,10 @@ class Extractor(object):
             parameters=dict(obj.parameters),
             metadata=dict(obj.metadata))
 
-    def get_features_parameters_and_metadata(self):
+    def get_features_parameters_and_metadata(self, hidden=False):
         """Returns dict with parameters and metadata from self.featureset."""
         return {v.name: self.get_parameters_and_metadata(
-            v) for k, v in self.featureset.items() if not v.hidden}
+            v) for k, v in self.featureset.items() if v.hidden == hidden}
 
     def _pop_hidden(self, results):
         """Returns resluts without hidden feature results."""

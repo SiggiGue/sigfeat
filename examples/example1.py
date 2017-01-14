@@ -4,7 +4,10 @@ import pandas as pd
 
 from sigfeat.parameter import Parameter
 from sigfeat.source import ArraySource
-from sigfeat.features import Feature, SpectralFlux, SpectralCentroid
+from sigfeat.features import Feature
+from sigfeat.features import SpectralFlux
+from sigfeat.features import SpectralCentroid
+from sigfeat.features import SpectralFlatness
 from sigfeat.features import AbsSpectrumRfft
 from sigfeat.extractor import Extractor
 from sigfeat.sink import DefaultDictSink
@@ -71,7 +74,8 @@ features = (
     Peak(),
     MS(),
     SpectralFlux(),
-    SpectralCentroid()
+    SpectralCentroid(),
+    SpectralFlatness(),
     )
 
 extractor = Extractor(*features)

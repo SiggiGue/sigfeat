@@ -11,32 +11,55 @@ import six
 import numpy as np
 
 from .parameter import Parameter
-from .feature import Feature
+from .source import Source
 
+
+# TODO Preprocess mus provide a source not being a feature.
 
 @six.add_metaclass(abc.ABCMeta)
-class Preprocess(Feature):
-    # TODO: Adding MetadataMixin? i think tha makes sense.
+class Preprocess(Source):
 
-    def on_start(self, source):
-        pass
+    def __init__(self, source, **parameters):
+        self.source = source
+        for k, v in self.source.metadata:
+            self.add_metadata(k, v)
+        self.add_metadata('sourceclass', self.source.__class__.__name__)
+        self.add_metadata('preprocessclass', self.__class__.__name__)
+        self.fetch_metadata_as_attrs()
+
+        src_params = dict(source.parameters)
+        src_params.update(parameters)
+        self.unroll_parameters(src_params)
+
+    def generate(self):
+        for data in self.source:
+            yield self.process(data)
 
     @abc.abstractmethod
-    def process(self, data, **kwargs):
+    def process(self, data):
         """Override this method."""
-        pass
-
-    def new(self):
-        return self.__class__(**dict(self.parameters))
+        return data
 
 
-class MonoMix(Preprocess):
+class SumMix(Preprocess):
     axis = Parameter(-1)
     channels = Parameter(1)
 
     def process(self, data):
-        block = np.sum(data[0], axis=self.axis).flatten()
-        data = block, *data[1:]
+        if self.source.channels > 1:
+            block = np.sum(data[0], axis=self.axis).flatten()
+            data = block, *data[1:]
+        return data
+
+
+class MeanMix(Preprocess):
+    axis = Parameter(-1)
+    channels = Parameter(1)
+
+    def process(self, data):
+        if self.source.channels > 1:
+            block = np.mean(data[0], axis=self.axis).flatten()
+            data = block, *data[1:]
         return data
 
 #

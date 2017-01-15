@@ -1,8 +1,8 @@
 """This Module contains the central Extractor class.
 
-The Extractor consumes a FeatureSet and a Preprocess instance
-and is used to extract the Features from given sources into
-Sinks.
+The Extractor consumes features instances
+and is used to extract the Features from given sources into given
+Sink.
 
 """
 
@@ -15,22 +15,20 @@ class Extractor(object):
 
     Parameters
     ----------
-    features : FeatureSet/itearable of Features
-    preprocess : Preprocess instance, optional
-
+    *features : FeatureSet/itearable of Features
+    autoinst : bool
+        Autoinstantiate required feature Classes if no instance in featureset.
+        If False you will get errors with hint
+        which feature instance to provide.
     """
-    def __init__(self, *features, preprocess=None):
-        # if not isinstance(featureset, FeatureSet):
-        #     featureset = FeatureSet(*featureset)
+    def __init__(self, *features, autoinst=True):
         self.features = features
-        self.featureset = features_to_featureset(self.features)
-        self.preprocess = preprocess
+        self.featureset = features_to_featureset(
+            self.features, autoinst=autoinst)
 
     def _extract(self, source):
         result = Result()
         for data in source:
-            if self.preprocess:
-                data = self.preprocess.process(data)
             for fid, feature in self.featureset.items():
                 output = feature.process(
                     data,
@@ -52,13 +50,9 @@ class Extractor(object):
             The sink with processed data.
 
         """
-        if self.preprocess:
-            self.preprocess.on_start(source)
-
         for fid, feature in self.featureset.items():
             feature.on_start(
                 source,
-                self.preprocess,
                 self.featureset,
                 sink)
 
@@ -82,18 +76,13 @@ class Extractor(object):
             'source':
                 self.get_parameters_and_metadata(source)
             })
-        if self.preprocess:
-            sink.receive({
-                'preprocess':
-                    self.get_parameters_and_metadata(self.preprocess)})
         return sink
 
     def reset(self):
-        """Resets the states of features and preprocess.
+        """Resets the states of features.
         If a new source shall be processed this may be usefull/needed.
         """
         self.featureset = features_to_featureset(self.features, new=True)
-        self.preprocess = self.preprocess.new()
 
     @staticmethod
     def get_parameters_and_metadata(obj):

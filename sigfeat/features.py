@@ -10,19 +10,17 @@ from .feature import HiddenFeature
 from .parameter import Parameter
 
 
-def get_channels(source, preprocess):
-    if hasattr(preprocess, 'channels'):
-        return preprocess.channels
-    else:
-        return source.channels
-
-
 class WindowedSignal(HiddenFeature):
+    """WindowedSignal Feature provides a windowed block from source.
+
+    Parameters
+    ----------
+    """
     window = Parameter(default='hann')
     size = Parameter()
     periodic = Parameter(default=True)
 
-    def on_start(self, source, preprocess, *args, **kwargs):
+    def on_start(self, source, *args, **kwargs):
         if not self.size:
             self.size = source.blocksize
 
@@ -30,7 +28,7 @@ class WindowedSignal(HiddenFeature):
             window=self.window,
             Nx=self.size,
             fftbins=self.periodic)
-        self.channels = get_channels(source, preprocess)
+        self.channels = source.channels
 
         if self.channels > 1:
             win = np.tile(win, (self.channels, 1)).T
@@ -91,8 +89,8 @@ class SpectralCentroid(Feature):
     def requires(self):
         return [AbsSpectrumRfft]
 
-    def on_start(self, source, preprocess, featureset, sink):
-        self.channels = get_channels(source, preprocess)
+    def on_start(self, source, featureset, sink):
+        self.channels = source.channels
         self.frequencies = featureset['SpectrumRfft'].frequencies
 
         if self.channels > 1:
@@ -122,8 +120,8 @@ class SpectralFlux(Feature):
     _firstiter = True
     axis = Parameter(0)
 
-    def on_start(self, source, preprocess, featureset, sink):
-        self.channels = get_channels(source, preprocess)
+    def on_start(self, source, featureset, sink):
+        self.channels = source.channels
 
     def requires(self):
         return [AbsSpectrumRfft]

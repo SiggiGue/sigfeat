@@ -56,7 +56,7 @@ class Feature(ParameterMixin, MetadataMixin):
 
         self.add_metadata('name', self.name)
 
-    def on_start(self, source, preprocess, featureset, sink):
+    def on_start(self, source, featureset, sink):
         """Override this method if your feature needs some initialization.
 
         Extractor will give you kwargs source, featureset and sink.
@@ -90,7 +90,7 @@ class Feature(ParameterMixin, MetadataMixin):
             else:
                 yield feature
 
-    def gen_dependencies_instances(self, err_missing=True):
+    def gen_dependencies_instances(self, autoinst=True, err_missing=True):
         """Checks deps for being instance or class and yields instances."""
         deps = list(self.dependencies())
         for dep in deps:
@@ -102,10 +102,13 @@ class Feature(ParameterMixin, MetadataMixin):
                     raise ValueError(
                          'Must provide a Feature Instance of {}'.format(
                              dep))
+                elif autoinst:
+                    yield from dep().gen_dependencies_instances(
+                        autoinst=autoinst, err_missing=err_missing)
             else:
                 yield dep
 
-    def featureset(self, new=False, err_missing=True):
+    def featureset(self, new=False, autoinst=False, err_missing=True):
         """Returns an ordered dict of all features unique in name.
 
         The dict is ordered by the dependency tree order.
@@ -121,14 +124,16 @@ class Feature(ParameterMixin, MetadataMixin):
             Keys are ``fid`` and values are feature instances.
 
         """
-        deps = reversed(tuple(self.gen_dependencies_instances(err_missing)))
+        deps = reversed(tuple(self.gen_dependencies_instances(
+            autoinst, err_missing)))
         if new:
             deps = [d.new() for d in deps]
         return OrderedDict((feat.name, feat) for feat in deps)
 
     def validate_name(self):
         """Checks for uniqueness of feature name in all dependent features."""
-        names = [f.name for f in self.featureset(err_missing=False).values()]
+        names = [f.name for f in self.featureset(
+            autoinst=False, err_missing=False).values()]
         if not len(names) == len(set(names)):
             raise ValueError(
                 'You have defined duplicate feature names '
@@ -161,8 +166,9 @@ class HiddenFeature(Feature):
     _hidden = True
 
 
-def validate_featureset(featureset):
-    """Returns true if all required feature instances are available."""
+def _validate_featureset(featureset):
+    """Returns true if all required feature instances are available.
+    Else raises an error."""
     for name, feature in featureset.items():
         for req in feature.requires():
             if hasattr(req, 'name') and isinstance(req.name, str):
@@ -172,20 +178,33 @@ def validate_featureset(featureset):
 
             if name not in featureset:
                 raise ValueError(
-                    'You must provide a feature instance of {}'.format(req))
-    return True
+                    'You must provide a feature instance of {} '
+                    'or try set autoinst=True if defaults are ok.'.format(
+                        req))
+    return featureset
 
 
-def features_to_featureset(features, new=False, err_missing=True):
-    """Returns an featureset of given features distinct in names."""
+def features_to_featureset(features,
+                           new=False,
+                           autoinst=False):
+    """Returns an featureset of given features distinct in names.
+
+    Parameters
+    ----------
+    features : iterable
+    new : reinitialize features as new instances.
+    autoinst : auto initialize missing feature classes if required.
+
+    """
     featsets = (feat.featureset(
-        new=new, err_missing=False) for feat in features)
+        new=new,
+        autoinst=autoinst,
+        err_missing=False) for feat in features)
     featureset = next(featsets)
     for fset in featsets:
         featureset.update(fset)
-    if err_missing:
-        validate_featureset(featureset)
-    return featureset
+
+    return _validate_featureset(featureset)
 
 
 # Singletons for features was planned, but not

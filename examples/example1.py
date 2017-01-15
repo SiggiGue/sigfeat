@@ -1,9 +1,9 @@
 from pylab import np, plt
 from scipy.signal import chirp
-import pandas as pd
 
 from sigfeat.parameter import Parameter
 from sigfeat.source import ArraySource
+from sigfeat.preprocess import MonoMix
 from sigfeat.features import Feature
 from sigfeat.features import SpectralFlux
 from sigfeat.features import SpectralCentroid
@@ -44,11 +44,13 @@ class RMS(Feature):
 
 class Peak(Feature):
     """Absolute Peak value."""
+    axis = Parameter(0)
+
     def requires(self):
         return [Abs().hide(True)]
 
     def process(self, data, result):
-        return np.max(result['Abs'])
+        return np.max(result['Abs'], axis=self.axis)
 
 t = np.linspace(0, 60, 60*44100)
 x = np.sin(2*np.pi*1000*t)
@@ -56,35 +58,41 @@ x = chirp(
     t,
     f0=10,
     t1=60,
-    f1=40,
+    f1=4000,
     method='log'
     )
 
-asrc = ArraySource(
-    x,
+src = ArraySource(
+    np.tile(x, (2, 1)).T,
     samplerate=44100,
     blocksize=4096,
     overlap=2048)
 
-aspec = AbsSpectrumRfft(nfft=asrc.blocksize)
+# src = SoundFileSource(
+#     '86jazzy_mix07.wav',
+#     blocksize=1024,
+#     overlap=512)
+
+aspec = AbsSpectrumRfft()
 features = (
     aspec,
     Index(),
     RMS(),
     Peak(),
-    MS(),
+    MS().hide(),
     SpectralFlux(),
     SpectralCentroid(),
     SpectralFlatness(),
     )
 
-extractor = Extractor(*features)
+extractor = Extractor(*features, preprocess=MonoMix())
 
 sink = DefaultDictSink()
 
-extractor.extract(asrc, sink)
-df = pd.DataFrame(sink['results']).set_index('Index')
-df.plot()
+extractor.extract(src, sink)
+
+plt.figure()
+for l, r in sink['results'].items():
+    plt.plot(r/np.max(np.abs(r)), label=str(l))
+plt.legend()
 plt.show()
-# for res in extractor.extract(ars):
-#     print(res)

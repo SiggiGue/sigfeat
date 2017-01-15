@@ -30,7 +30,7 @@ class Extractor(object):
         result = Result()
         for data in source:
             if self.preprocess:
-                data = self.preprocess(data)
+                data = self.preprocess.process(data)
             for fid, feature in self.featureset.items():
                 output = feature.process(
                     data,
@@ -52,10 +52,13 @@ class Extractor(object):
             The sink with processed data.
 
         """
+        if self.preprocess:
+            self.preprocess.on_start(source)
 
         for fid, feature in self.featureset.items():
             feature.on_start(
                 source,
+                self.preprocess,
                 self.featureset,
                 sink)
 
@@ -65,6 +68,12 @@ class Extractor(object):
             for result in self._extract(source):
                 sink.receive_append(self._pop_hidden(result))
 
+        for fid, feature in self.featureset.items():
+            feature.on_finished(
+                source,
+                self.featureset,
+                sink)
+
         sink.receive({
             'hiddenfeatures':
                 self.get_features_parameters_and_metadata(hidden=True),
@@ -73,6 +82,10 @@ class Extractor(object):
             'source':
                 self.get_parameters_and_metadata(source)
             })
+        if self.preprocess:
+            sink.receive({
+                'preprocess':
+                    self.get_parameters_and_metadata(self.preprocess)})
         return sink
 
     def reset(self):

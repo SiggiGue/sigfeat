@@ -62,9 +62,10 @@ class ArraySource(Source):
         array = asarray(array)
         self.unroll_parameters(parameters)
         self._array = array
+        self.channels = product(array.shape[1:])
         self.add_metadata('name', name)
         self.add_metadata('arraylen', len(array))
-        self.add_metadata('channels', product(array.shape[1:]))
+        self.add_metadata('channels', self.channels)
         self.add_metadata('samplerate', samplerate)
         self.fetch_metadata_as_attrs()
 
@@ -106,7 +107,7 @@ class SoundFileSource(Source):
     always_2d = Parameter(default=True)
 
     def __init__(self, sf=None, **parameters):
-        self.init_parameters(parameters)
+        self.unroll_parameters(parameters)
         if isinstance(sf, str):
             from soundfile import SoundFile
             sf = SoundFile(sf)

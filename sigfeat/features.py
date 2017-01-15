@@ -10,18 +10,31 @@ from .feature import HiddenFeature
 from .parameter import Parameter
 
 
+def get_channels(source, preprocess):
+    if hasattr(preprocess, 'channels'):
+        return preprocess.channels
+    else:
+        return source.channels
+
+
 class WindowedSignal(HiddenFeature):
     window = Parameter(default='hann')
     size = Parameter()
     periodic = Parameter(default=True)
 
-    def on_start(self, source, featureset, sink):
+    def on_start(self, source, preprocess, *args, **kwargs):
         if not self.size:
             self.size = source.blocksize
-        self.w = get_window(
+
+        win = get_window(
             window=self.window,
             Nx=self.size,
             fftbins=self.periodic)
+        self.channels = get_channels(source, preprocess)
+
+        if self.channels > 1:
+            win = np.tile(win, (self.channels, 1)).T
+        self.w = win
 
     def process(self, data, result):
         if self.window == 'rect':
@@ -32,7 +45,7 @@ class WindowedSignal(HiddenFeature):
 # Spectral Features
 class SpectrumRfft(HiddenFeature):
     nfft = Parameter()
-    axis = Parameter(default=-1)
+    axis = Parameter(default=0)
     window = Parameter(default=True)
 
     def requires(self):
@@ -41,7 +54,7 @@ class SpectrumRfft(HiddenFeature):
         else:
             return []
 
-    def on_start(self, source, featureset, sink):
+    def on_start(self, source, *args, **kwargs):
         if not self.nfft:
             self.nfft = source.blocksize
         self.frequencies = rfftfreq(self.nfft, 1.0/source.samplerate)
@@ -73,29 +86,44 @@ class AbsSpectrumRfft(SpectrumRfft):
 
 
 class SpectralCentroid(Feature):
+    axis = Parameter(0)
+
     def requires(self):
         return [AbsSpectrumRfft]
 
-    def on_start(self, source, featureset, sink):
+    def on_start(self, source, preprocess, featureset, sink):
+        self.channels = get_channels(source, preprocess)
         self.frequencies = featureset['SpectrumRfft'].frequencies
+
+        if self.channels > 1:
+            self.frequencies = np.tile(
+                self.frequencies
+                (self.channels, 1)).T
 
     def process(self, data, featuredata):
         return sepectral_centroid(
             self.frequencies,
-            featuredata['AbsSpectrumRfft'])
+            featuredata['AbsSpectrumRfft'],
+            self.axis)
 
 
 class SpectralFlatness(Feature):
+    axis = Parameter(0)
+
     def requires(self):
         return [AbsSpectrumRfft]
 
     def process(self, data, featuredata):
-        return spectral_flatness(featuredata['AbsSpectrumRfft'])
+        return spectral_flatness(featuredata['AbsSpectrumRfft'], self.axis)
 
 
 class SpectralFlux(Feature):
     _lastspec = None
     _firstiter = True
+    axis = Parameter(0)
+
+    def on_start(self, source, preprocess, featureset, sink):
+        self.channels = get_channels(source, preprocess)
 
     def requires(self):
         return [AbsSpectrumRfft]
@@ -106,26 +134,31 @@ class SpectralFlux(Feature):
         if self._firstiter:
             self._lastspec = curspec
             self._firstiter = False
-            return 0
+            if self.channels > 1:
+                return np.zeros(self.channels)
+            else:
+                return 0
 
-        flux = spectral_flux(self._lastspec, curspec)
+        flux = spectral_flux(self._lastspec, curspec, self.axis)
         self._lastspec = curspec
         return flux
 
 
-def sepectral_centroid(frequencies, spectrum):
-    return np.sum(frequencies * spectrum) / np.sum(spectrum)
+def sepectral_centroid(frequencies, spectrum, axis):
+    return np.sum(
+        frequencies * spectrum, axis=axis) / np.sum(spectrum, axis=axis)
 
 
-def spectral_flatness(spectrum):
-    return scipy.stats.gmean(spectrum) / np.mean(spectrum)
+def spectral_flatness(spectrum, axis):
+    return scipy.stats.gmean(
+        spectrum, axis=axis) / np.mean(spectrum, axis=axis)
 
 
-def spectral_flux(spectrum1, spectrum2):
+def spectral_flux(spectrum1, spectrum2, axis):
     def _abs_max_ratio(s):
-        return np.abs(s) / np.max(np.abs(s))
+        return np.abs(s) / np.max(np.abs(s), axis=axis)
     d = _abs_max_ratio(spectrum2) - _abs_max_ratio(spectrum1)
-    return 0.5 * np.sum(d + np.abs(d))
+    return 0.5 * np.sum(d + np.abs(d), axis=axis)
 
 
 def crest_factor(signal):

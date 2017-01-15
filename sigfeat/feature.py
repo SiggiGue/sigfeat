@@ -56,7 +56,7 @@ class Feature(ParameterMixin, MetadataMixin):
 
         self.add_metadata('name', self.name)
 
-    def on_start(self, source, featureset, sink):
+    def on_start(self, source, preprocess, featureset, sink):
         """Override this method if your feature needs some initialization.
 
         Extractor will give you kwargs source, featureset and sink.
@@ -73,7 +73,7 @@ class Feature(ParameterMixin, MetadataMixin):
         """Override this method returning process results."""
         print('Processing', self.__class__.__name__)
 
-    def on_finished(self, *args, **kwargs):
+    def on_finished(self, source, featureset, sink):
         """Override this method to be run after extraction."""
         pass
 

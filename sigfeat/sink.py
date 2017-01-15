@@ -15,6 +15,7 @@ import yaml
 
 @six.add_metaclass(abc.ABCMeta)
 class Sink(object):
+    """Sink base class."""
 
     @abc.abstractclassmethod
     def receive(self, datad):
@@ -23,12 +24,16 @@ class Sink(object):
 
     @abc.abstractclassmethod
     def receive_append(self, resultd):
-        """Shall receive result dictionaries appending data to the fields."""
+        """Shall receive result dictionaries appending data to fields."""
         pass
 
 
 class DefaultDictSink(Sink, dict):
+    """DefaultDictSink
 
+    The receive_append method appends input to 'results' defaultdict(list)
+
+    """
     def __init__(self):
         self.results = defaultdict(list)
         self['results'] = self.results
@@ -45,13 +50,14 @@ class DefaultDictSink(Sink, dict):
 
 class Hdf5Sink(Sink, h5py.File):
     """Sink writing data directly into a hdf5 file.
+
     WARNING: This implementation is quite bad until now!
-    Writing to the file must be performen chunk wise because
+    Writing to the file must be performed chunk wise because
     writing overhead is quite big. Deafaultdict is 10 times
     faster at the moment.
-
-    Better way would be DefaultDictSink and writing this once into
+    A better way would be DefaultDictSink and writing this once into
     a hdf file.
+
     """
     def __init__(self, *args, **kwargs):
         h5py.File.__init__(self, *args, **kwargs)

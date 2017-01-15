@@ -15,11 +15,23 @@ class Extractor(object):
 
     Parameters
     ----------
-    *features : FeatureSet/itearable of Features
+    *features : Feature instances
+        Provide multple feature instances.
+        If you provide a Feature required by other features, please
+        place it before the others.
     autoinst : bool
-        Autoinstantiate required feature Classes if no instance in featureset.
-        If False you will get errors with hint
-        which feature instance to provide.
+        Autoinstantiate required feature Classes if no instance exists
+        in featureset.
+        If False you will get errors with a hint
+        which feature instance you need provide as well.
+
+    Example
+    -------
+
+    .. code:
+
+        extractor = Extractor(feat1, feat2, ..., featN)
+
     """
     def __init__(self, *features, autoinst=True):
         self.features = features
@@ -27,6 +39,7 @@ class Extractor(object):
             self.features, autoinst=autoinst)
 
     def _extract(self, source):
+        """Yields extracted results."""
         result = Result()
         for data in source:
             for fid, feature in self.featureset.items():
@@ -47,7 +60,7 @@ class Extractor(object):
         Returns
         -------
         res : Sink
-            The sink with processed data.
+            The sink with processed data and metadata.
 
         """
         for fid, feature in self.featureset.items():
@@ -80,7 +93,9 @@ class Extractor(object):
 
     def reset(self):
         """Resets the states of features.
-        If a new source shall be processed this may be usefull/needed.
+
+        If a new source shall be processed this may be usefull or needed.
+
         """
         self.featureset = features_to_featureset(self.features, new=True)
 

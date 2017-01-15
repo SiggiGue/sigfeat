@@ -25,6 +25,8 @@ class Feature(ParameterMixin, MetadataMixin):
     Parameters
     ----------
     name : str
+    requirements : Feature instances iterable
+        To override those returned by self.requires().
 
     Notes
     -----
@@ -38,7 +40,9 @@ class Feature(ParameterMixin, MetadataMixin):
 
     def __init__(self,  name=None, requirements=None, **parameters):
         """Returns a Feature instance.
+
         Provide feature-parameters as keyword arguments.
+
         """
         if not name:
             name = self.__class__.__name__
@@ -59,22 +63,55 @@ class Feature(ParameterMixin, MetadataMixin):
     def on_start(self, source, featureset, sink):
         """Override this method if your feature needs some initialization.
 
-        Extractor will give you kwargs source, featureset and sink.
+        The Extractor will give you kwargs source, featureset and sink.
 
         """
         pass
 
     def requires(self):
-        """Override this method if your feature depends on other features."""
+        """Override this method if your feature depends on other features.
+
+        You can return Feature classes and Feature instances you need for
+        your feature.
+
+        """
         return []
 
     @abc.abstractmethod
     def process(self, data, result):
-        """Override this method returning process results."""
+        """Override this method returning process results.
+
+        The data from the processed source will be in data=block,index,...,
+        The results from features your feature requires will be in the
+        resuld argument as dictionary.
+
+        Parameters
+        ----------
+        data : block, index
+            Or the data yielded from your source.
+        result : Result, dictlike
+            The results from other features of current data.
+            If you provide your required features in the requires() method,
+            you will be able to access the results from those features.
+
+        Returns
+        -------
+        resultdata : e.g. scalar, ndarray or other custom types.
+            This is the feature result for the current data (block).
+
+        """
         print('Processing', self.__class__.__name__)
 
     def on_finished(self, source, featureset, sink):
-        """Override this method to be run after extraction."""
+        """Override this method to be run after extraction.
+
+        Parameters
+        ----------
+        source : source
+        featureset : OrderedDict of features
+        sink : Sink
+
+        """
         pass
 
     def dependencies(self):

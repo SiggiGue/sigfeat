@@ -13,12 +13,13 @@ class MetadataMixin:
     """MetadataMixin class
     Adding metadata functionality to classes.
     Overrides:
+
     ``self._metadata``
     ``self.metadata``
     ``_init_metadata_list``
     ``add_metadata``
     ``extend_metadata``
-    ``fetch_metadata_as_attrs
+    ``fetch_metadata_as_attrs``
 
     """
     _metadata = None
@@ -28,7 +29,7 @@ class MetadataMixin:
             self._metadata = [('classname', self.__class__.__name__)]
 
     def add_metadata(self, name, value):
-        """Appends key value pair to metadata list."""
+        """Appends the key value pair to metadata list."""
         self._init_metadata_list()
         self._metadata.append((name, value))
 

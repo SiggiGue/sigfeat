@@ -1,4 +1,9 @@
 class Result(dict):
+    """Result dict. Behaves 'immutable' to the Feature.process method.
+
+    Just a simple dict to hold the results from features.
+
+    """
     __slots__ = ()
 
     def __setitem__(self, *args):

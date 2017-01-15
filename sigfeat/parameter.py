@@ -34,6 +34,7 @@ class Parameter(object):
 
 class ParameterMixin:
     """ParameterMixin class
+
     Adds Parameter functionality to classes.
 
     """

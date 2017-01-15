@@ -1,7 +1,6 @@
 import numpy as np
-import scipy.stats
-import scipy.signal
 
+from scipy.stats import gmean
 from scipy.signal import get_window
 from scipy.fftpack import rfft, rfftfreq
 
@@ -15,6 +14,14 @@ class WindowedSignal(HiddenFeature):
 
     Parameters
     ----------
+    window : str
+        Name of window to be used (supports all from scipy.signal.get_window).
+        Default is 'hann'.
+    size : int
+        Size of the window.
+    periodic : bool
+        Periodic True (e.g. for ffts) or symmetric False.
+
     """
     window = Parameter(default='hann')
     size = Parameter()
@@ -42,6 +49,16 @@ class WindowedSignal(HiddenFeature):
 
 # Spectral Features
 class SpectrumRfft(HiddenFeature):
+    """Rfft Spectrum feature (hidden per default)
+
+    Parameters
+    ----------
+    nfft : int
+    axis : int
+    window : bool
+        Whether to use a window or not. If you need a special window,
+        create a WindowedSignal instance.
+    """
     nfft = Parameter()
     axis = Parameter(default=0)
     window = Parameter(default=True)
@@ -71,7 +88,17 @@ class SpectrumRfft(HiddenFeature):
 
 
 class AbsSpectrumRfft(SpectrumRfft):
+    """Absolute Rfft Spectrum feature (hidden per default)
 
+    Parameters
+    ----------
+    nfft : int
+    axis : int
+    window : bool
+        Whether to use a window or not. If you need a special window,
+        create a WindowedSignal instance.
+
+    """
     def requires(self):
         return [SpectrumRfft(
             nfft=self.nfft,
@@ -84,6 +111,14 @@ class AbsSpectrumRfft(SpectrumRfft):
 
 
 class SpectralCentroid(Feature):
+    """SpectralCentroid of AbsSpectrumRfft.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along the centroid will be calculated, default=0.
+
+    """
     axis = Parameter(0)
 
     def requires(self):
@@ -99,23 +134,39 @@ class SpectralCentroid(Feature):
                 (self.channels, 1)).T
 
     def process(self, data, featuredata):
-        return sepectral_centroid(
+        return centroid(
             self.frequencies,
             featuredata['AbsSpectrumRfft'],
             self.axis)
 
 
 class SpectralFlatness(Feature):
+    """SpectralFlatness of AbsSpectrumRfft.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along the flatness will be calculated, default=0.
+
+    """
     axis = Parameter(0)
 
     def requires(self):
         return [AbsSpectrumRfft]
 
     def process(self, data, featuredata):
-        return spectral_flatness(featuredata['AbsSpectrumRfft'], self.axis)
+        return flatness(featuredata['AbsSpectrumRfft'], self.axis)
 
 
 class SpectralFlux(Feature):
+    """SpectralFlux of AbsSpectrumRfft.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along the flux will be calculated, default=0.
+
+    """
     _lastspec = None
     _firstiter = True
     axis = Parameter(0)
@@ -137,25 +188,24 @@ class SpectralFlux(Feature):
             else:
                 return 0
 
-        flux = spectral_flux(self._lastspec, curspec, self.axis)
+        specflux = flux(self._lastspec, curspec, self.axis)
         self._lastspec = curspec
-        return flux
+        return specflux
 
 
-def sepectral_centroid(frequencies, spectrum, axis):
+def centroid(index, values, axis):
     return np.sum(
-        frequencies * spectrum, axis=axis) / np.sum(spectrum, axis=axis)
+        index * values, axis=axis) / np.sum(values, axis=axis)
 
 
-def spectral_flatness(spectrum, axis):
-    return scipy.stats.gmean(
-        spectrum, axis=axis) / np.mean(spectrum, axis=axis)
+def flatness(values, axis):
+    return gmean(values, axis=axis) / np.mean(values, axis=axis)
 
 
-def spectral_flux(spectrum1, spectrum2, axis):
+def flux(values1, values2, axis):
     def _abs_max_ratio(s):
         return np.abs(s) / np.max(np.abs(s), axis=axis)
-    d = _abs_max_ratio(spectrum2) - _abs_max_ratio(spectrum1)
+    d = _abs_max_ratio(values2) - _abs_max_ratio(values1)
     return 0.5 * np.sum(d + np.abs(d), axis=axis)
 
 

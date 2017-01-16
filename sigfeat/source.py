@@ -23,6 +23,8 @@ class Source(ParameterMixin, MetadataMixin):
     ----------
     blocksize : int
     overlap : int
+    samplerate : scalar
+    channels : int
 
     """
     blocksize = Parameter(default=1024)
@@ -30,8 +32,8 @@ class Source(ParameterMixin, MetadataMixin):
 
     def __init__(self, **parameters):
         self.unroll_parameters(parameters)
-        # self.add_metadata('samplerate', NotImplemented)
-        # self.add_metadata('channels', NotImplemented)
+        self.add_metadata('samplerate', None)
+        self.add_metadata('channels', None)
         self.fetch_metadata_as_attrs()
 
     def __iter__(self):
@@ -104,7 +106,7 @@ class SoundFileSource(Source):
     frames = Parameter(default=-1)
     fill_value = Parameter(default=0)
     dtype = Parameter(default='float64')
-    always_2d = Parameter(default=True)
+    always_2d = Parameter(default=False)
 
     def __init__(self, sf=None, **parameters):
         self.unroll_parameters(parameters)

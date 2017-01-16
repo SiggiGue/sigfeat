@@ -1,12 +1,18 @@
 import numpy as np
 
-from scipy.stats import gmean
+from scipy.stats import gmean, skew, kurtosis
 from scipy.signal import get_window
 from scipy.fftpack import rfft, rfftfreq
 
 from .feature import Feature
 from .feature import HiddenFeature
 from .parameter import Parameter
+
+
+class Index(Feature):
+    """Index of source."""
+    def process(self, data, result):
+        return data[1]
 
 
 class WindowedSignal(HiddenFeature):
@@ -36,7 +42,6 @@ class WindowedSignal(HiddenFeature):
             Nx=self.size,
             fftbins=self.periodic)
         self.channels = source.channels
-
         if self.channels > 1:
             win = np.tile(win, (self.channels, 1)).T
         self.w = win
@@ -47,7 +52,8 @@ class WindowedSignal(HiddenFeature):
         return self.w * data[0]
 
 
-# Spectral Features
+# SPECTRAL FEATURES ###########################################################
+
 class Rfft(HiddenFeature):
     """Rfft Spectrum feature (hidden per default)
 
@@ -110,7 +116,7 @@ class AbsRfft(Rfft):
         return np.abs(featuredata['Rfft'])
 
 
-class SpectralCentroidAbsRfft(Feature):
+class SpectralCentroid(Feature):
     """SpectralCentroid of AbsRfft.
 
     Parameters
@@ -127,20 +133,20 @@ class SpectralCentroidAbsRfft(Feature):
     def on_start(self, source, featureset, sink):
         self.channels = source.channels
         self.frequencies = featureset['Rfft'].frequencies
-
         if self.channels > 1:
             self.frequencies = np.tile(
-                self.frequencies
+                self.frequencies,
                 (self.channels, 1)).T
 
     def process(self, data, featuredata):
-        return centroid(
+        result = centroid(
             self.frequencies,
             featuredata['AbsRfft'],
             self.axis)
+        return result
 
 
-class SpectralFlatnessAbsRfft(Feature):
+class SpectralFlatness(Feature):
     """SpectralFlatness of AbsRfft.
 
     Parameters
@@ -158,7 +164,7 @@ class SpectralFlatnessAbsRfft(Feature):
         return flatness(featuredata['AbsRfft'], self.axis)
 
 
-class SpectralFluxAbsRfft(Feature):
+class SpectralFlux(Feature):
     """SpectralFlux of AbsRfft.
 
     Parameters
@@ -169,33 +175,57 @@ class SpectralFluxAbsRfft(Feature):
     """
     axis = Parameter(0)
 
+    def requires(self):
+        return [AbsRfft]
+
     def on_start(self, source, featureset, sink):
         nfft = featureset['AbsRfft'].nfft
         if source.channels > 1:
-            self._lastspec = np.ones(nfft, source.channels)
+            self._lastspec = np.ones((nfft, source.channels))
         else:
             self._lastspec = np.ones(nfft)
-
-    def requires(self):
-        return [AbsRfft]
 
     def process(self, data, featuredata):
         curspec = featuredata['AbsRfft']
         specflux = flux(self._lastspec, curspec, self.axis)
         self._lastspec = curspec
-        if not specflux:
-            return 0.0
         return specflux
 
 
-class SpectralCrestFactorAbsRfft(Feature):
-
+class SpectralCrestFactor(Feature):
+    """Spectral Crest Factor"""
     def requires(self):
         return [AbsRfft]
 
     def process(self, data, result):
         return crest_factor(result['AbsRfft'])
 
+
+class SpectralRolloff(Feature):
+    """Spectral Rolloff from AbsRfft.
+
+    The spectral rolloff is the frequency where the kappa percentage of
+    energy is below and the 1-kappa percentage of energy is above.
+
+    Parameters
+    ----------
+    kappa : scalar {0...1}
+        Default 0.95
+    """
+
+    kappa = Parameter(0.85)
+
+    def requires(self):
+        return [AbsRfft]
+
+    def on_start(self, source, featureset, sink):
+        self.samplerate = source.samplerate
+
+    def process(self, data, result):
+        return rolloff(result['AbsRfft'], self.samplerate, self.kappa)
+
+
+# TEMPORAL FEATURES ###########################################################
 
 class CrestFactor(Feature):
     """Crest Factor of Source data."""
@@ -204,23 +234,26 @@ class CrestFactor(Feature):
         return crest_factor(data[0])
 
 
-class ZeroCrossingCout(Feature):
-    """Counts Zero Crossings of Source data."""
+class ZeroCrossingRate(Feature):
+    """Zero Crossings Rate of Source data."""
+
+    def on_start(self, source, featureset, sink):
+        self.factor = source.samplerate / source.blocksize
 
     def process(self, data, result):
-        return zero_crossing_count(data[0])
+        return zero_crossing_count(data[0])*self.factor
 
 
 class StatMoments(Feature):
     """Estimates mu, variance, skewness and kurtosis of Source data."""
     labels = ['mu', 'mu_variance', 'mu_skewness', 'mu_kurtosis']
 
-    def process(sefl, data, resutl):
+    def process(sefl, data, result):
         return moments(data[0])
 
 
 class SquaredSignal(HiddenFeature):
-    """Squared Signal data."""
+    """Squared Signal data (as hidden feature)."""
 
     def process(self, data, result):
         sig = data[0]
@@ -228,13 +261,20 @@ class SquaredSignal(HiddenFeature):
 
 
 class AbsSignal(HiddenFeature):
-
+    """Abs from source data (as hidden feature)."""
     def process(self, data, result):
         return np.abs(data[0])
 
 
-class CentroidSquaredSignal(Feature):
-    """Experimental Centroid of abs source data."""
+class CentroidAbsSignal(Feature):
+    """Experimental Centroid of abs source data.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along which the feature is computed.
+
+    """
     axis = Parameter(0)
 
     def requires(self):
@@ -247,8 +287,15 @@ class CentroidSquaredSignal(Feature):
         return centroid(self.index, result['AbsSignal'], axis=self.axis)
 
 
-class FlatnessSquaredSignal(Feature):
-    """Experimental Flatness of abs source data."""
+class FlatnessAbsSignal(Feature):
+    """Experimental Flatness of abs source data.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along which the feature is computed.
+
+    """
     axis = Parameter(0)
 
     def requires(self):
@@ -258,9 +305,109 @@ class FlatnessSquaredSignal(Feature):
         return flatness(result['AbsSignal'], axis=self.axis)
 
 
+class MeanSquare(HiddenFeature):
+    """MeanSquare (MS) of squared Source data.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along which the feature is computed.
+
+    """
+    axis = Parameter(0)
+
+    def requires(self):
+        return [SquaredSignal()]
+
+    def process(self, data, result):
+        return np.mean(result['SquaredSignal'], axis=self.axis)
+
+
+class RootMeanSquare(Feature):
+    """Root Mean Square (RMS) from Source data.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along which the feature is computed.
+
+    """
+    axis = Parameter(0)
+
+    def requires(self):
+        return [MeanSquare(axis=self.axis)]
+
+    def process(self, data, result):
+        return np.sqrt(result['MeanSquare'])
+
+
+class Peak(Feature):
+    """Peak of AbsSignal from Source data.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along which the feature is computed.
+
+    """
+    axis = Parameter(0)
+
+    def requires(self):
+        yield AbsSignal()
+
+    def process(self, data, result):
+        return np.max(result['AbsSignal'], axis=self.axis)
+
+
+class Kurtosis(Feature):
+    """Kurtosis of Source data.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along which the feature is computed.
+
+    """
+    axis = Parameter(0)
+
+    def process(self, data, result):
+        return kurtosis(data[0], axis=self.axis)
+
+
+class Skewness(Feature):
+    """Skewness of Source data.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along which the feature is computed.
+
+    """
+    axis = Parameter(0)
+
+    def process(self, data, result):
+        return skew(data[0], axis=self.axis)
+
+
+class StandardDeviation(Feature):
+    """StandardDeviation (STD) of Source data.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along which the feature is computed.
+
+    """
+    axis = Parameter(0)
+
+    def process(self, data, result):
+        return np.std(data[0], axis=self.axis)
+
+
+# FUNCTIONS ###################################################################
+
 def centroid(index, values, axis):
-    return np.sum(
-        index * values, axis=axis) / np.sum(values, axis=axis)
+    return np.sum(index * values, axis=axis) / np.sum(values, axis=axis)
 
 
 def flatness(values, axis):
@@ -269,9 +416,16 @@ def flatness(values, axis):
 
 def flux(values1, values2, axis):
     def _abs_max_ratio(s):
-        return np.abs(s) / np.max(np.abs(s), axis=axis)
+        return s / np.max(s, axis=axis)
     d = _abs_max_ratio(values2) - _abs_max_ratio(values1)
     return 0.5 * np.sum(d + np.abs(d), axis=axis)
+
+
+def rolloff(absvalues, samplerate, kappa=0.85):
+    cumspec = np.cumsum(absvalues)
+    rolloffindex = np.argmax(cumspec > kappa*cumspec[-1])
+    frequency = rolloffindex * 0.5 * samplerate / len(absvalues)
+    return frequency
 
 
 def crest_factor(signal):

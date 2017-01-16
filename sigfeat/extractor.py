@@ -4,6 +4,8 @@ The Extractor consumes features instances
 and is used to extract the Features from given sources into given
 Sink.
 
+TODO: extract dependencies to feature metadata.
+
 """
 
 from .result import Result

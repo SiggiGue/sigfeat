@@ -6,25 +6,38 @@ from sigfeat.extractor import Extractor
 
 
 extractor = Extractor(
-    fts.SpectralFluxAbsRfft(),
-    fts.SpectralCentroidAbsRfft(),
-    fts.SpectralFlatnessAbsRfft(),
-    fts.SpectralCrestFactorAbsRfft(),
+    fts.SpectralFlux(),
+    fts.SpectralCentroid(),
+    fts.SpectralFlatness(),
+    fts.SpectralRolloff(),
+    fts.SpectralCrestFactor(),
     fts.CrestFactor(),
-    fts.ZeroCrossingCout(),
-
+    fts.ZeroCrossingRate(),
+    fts.RootMeanSquare(),
+    fts.Peak(),
+    fts.Kurtosis(),
+    fts.Skewness(),
+    fts.StandardDeviation(),
 )
 
 
 if __name__ == '__main__':
-    from pylab import plt, np
+    from pylab import plt
+    import pandas as pd
+    from pandas.tools.plotting import scatter_matrix
 
-    src = MeanMix(SoundFileSource('bonsai.wav'))
+    src = MeanMix(SoundFileSource(
+        'Test.wav',
+        blocksize=4096,
+        overlap=2048))
     sink = DefaultDictSink()
     extractor.extract(src, sink)
 
     plt.figure(src.name)
     for l, r in sink['results'].items():
-        plt.plot(r/np.max(np.abs(r)), label=str(l))
+        plt.plot(r, 'o-', label=str(l))
     plt.legend()
+
+    df = pd.DataFrame(sink['results'])
+    scatter_matrix(df)
     plt.show()

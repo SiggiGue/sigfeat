@@ -6,9 +6,13 @@ from sigfeat.extractor import Extractor
 
 
 extractor = Extractor(
-    fts.SpectralFlux(),
-    fts.SpectralCentroid(),
-    fts.SpectralFlatness(),
+    fts.SpectralFluxAbsRfft(),
+    fts.SpectralCentroidAbsRfft(),
+    fts.SpectralFlatnessAbsRfft(),
+    fts.SpectralCrestFactorAbsRfft(),
+    fts.CrestFactor(),
+    fts.ZeroCrossingCout(),
+
 )
 
 

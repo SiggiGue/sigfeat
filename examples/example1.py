@@ -3,12 +3,12 @@ from scipy.signal import chirp
 
 from sigfeat.parameter import Parameter
 from sigfeat.source import ArraySource
-from sigfeat.preprocess import MonoMix
+from sigfeat.preprocess import MeanMix
 from sigfeat.features import Feature
-from sigfeat.features import SpectralFlux
-from sigfeat.features import SpectralCentroid
-from sigfeat.features import SpectralFlatness
-from sigfeat.features import AbsSpectrumRfft
+from sigfeat.features import SpectralFluxAbsRfft
+from sigfeat.features import SpectralCentroidAbsRfft
+from sigfeat.features import SpectralFlatnessAbsRfft
+from sigfeat.features import AbsRfft
 from sigfeat.extractor import Extractor
 from sigfeat.sink import DefaultDictSink
 
@@ -73,23 +73,23 @@ src = ArraySource(
 #     blocksize=1024,
 #     overlap=512)
 
-aspec = AbsSpectrumRfft()
+aspec = AbsRfft()
 features = (
     aspec,
     Index(),
     RMS(),
     Peak(),
     MS().hide(),
-    SpectralFlux(),
-    SpectralCentroid(),
-    SpectralFlatness(),
+    SpectralFluxAbsRfft(),
+    SpectralCentroidAbsRfft(),
+    SpectralFlatnessAbsRfft(),
     )
 
-extractor = Extractor(*features, preprocess=MonoMix())
+extractor = Extractor(*features)
 
 sink = DefaultDictSink()
 
-extractor.extract(src, sink)
+extractor.extract(MeanMix(src), sink)
 
 plt.figure()
 for l, r in sink['results'].items():

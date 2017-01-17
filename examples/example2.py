@@ -33,7 +33,7 @@ if __name__ == '__main__':
     sink = DefaultDictSink()
     extractor.extract(src, sink)
 
-    plt.figure(src.name)
+    plt.figure(src.source.name)
     for l, r in sink['results'].items():
         plt.plot(r, 'o-', label=str(l))
     plt.legend()

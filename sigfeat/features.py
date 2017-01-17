@@ -392,10 +392,16 @@ class Skewness(Feature):
 class StandardDeviation(Feature):
     """StandardDeviation (STD) of Source data.
 
+    Just use the RootMeanSquare instad if you do not really need the std.
+
     Parameters
     ----------
     axis : int
         Axis along which the feature is computed.
+
+    See Also
+    --------
+    RMS
 
     """
     axis = Parameter(0)

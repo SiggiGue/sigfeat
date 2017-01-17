@@ -14,8 +14,6 @@ from .parameter import Parameter
 from .source import Source
 
 
-# TODO Preprocess mus provide a source not being a feature.
-
 @six.add_metaclass(abc.ABCMeta)
 class Preprocess(Source):
     """Preprocess base class.
@@ -32,10 +30,9 @@ class Preprocess(Source):
     """
     def __init__(self, source, **parameters):
         self.source = source
-        for k, v in self.source.metadata:
-            self.add_metadata(k, v)
-        self.add_metadata('sourceclass', self.source.__class__.__name__)
-        self.add_metadata('preprocessclass', self.__class__.__name__)
+        self.add_metadata('parent', dict(self.source.metadata))
+        self.add_metadata('samplerate', self.source.samplerate)
+        self.add_metadata('channels', self.source.channels)
         self.fetch_metadata_as_attrs()
 
         src_params = dict(source.parameters)

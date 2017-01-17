@@ -59,7 +59,10 @@ class Feature(ParameterMixin, MetadataMixin):
         self.unroll_parameters(parameters)
         self.validate_name()
 
-        self.add_metadata('name', self.name)
+        self.add_metadata(
+            'name', self.name)
+        self.add_metadata(
+            'dependencies', [str(i) for i in self.dependencies()][1:])
 
     def on_start(self, source, featureset, sink):
         """Override this method if your feature needs some initialization.

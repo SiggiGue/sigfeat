@@ -3,8 +3,6 @@
 Purpose is, to distinguish parameters of objects from other attributes.
 Parameters of instances will be extracted into Sink.
 
-TODO: change metadata behaviour and chain it hierarchically.
-
 """
 
 

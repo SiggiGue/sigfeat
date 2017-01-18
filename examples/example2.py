@@ -17,7 +17,6 @@ extractor = Extractor(
     fts.Peak(),
     fts.Kurtosis(),
     fts.Skewness(),
-    fts.StandardDeviation(),
 )
 
 

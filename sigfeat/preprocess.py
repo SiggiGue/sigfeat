@@ -41,7 +41,7 @@ class Preprocess(Source):
 
     def generate(self):
         for data in self.source:
-            yield self.process(data)
+            yield self.process(data)  # pragma: no coverage
 
     @abc.abstractmethod
     def process(self, data):
@@ -52,7 +52,7 @@ class Preprocess(Source):
         data : data from source
 
         """
-        return data
+        return data  # pragma: no coverage
 
 
 class SumMix(Preprocess):

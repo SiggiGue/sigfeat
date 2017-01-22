@@ -63,6 +63,7 @@ class Feature(ParameterMixin, MetadataMixin):
             'name', self.name)
         self.add_metadata(
             'dependencies', [str(i) for i in self.dependencies()][1:])
+        self.validate_name()
 
     def on_start(self, source, featureset, sink):
         """Override this method if your feature needs some initialization.
@@ -131,14 +132,14 @@ class Feature(ParameterMixin, MetadataMixin):
             else:
                 yield feature
 
-    def gen_dependencies_instances(self, autoinst=True, err_missing=True):
+    def gen_dependencies_instances(self, autoinst=False, err_missing=True):
         """Checks deps for being instance or class and yields instances."""
         deps = list(self.dependencies())
         for dep in deps:
             if isclass(dep):
                 isin = [isinstance(d, dep) for d in deps]
                 if any(isin):
-                    yield deps[deps.index(isin)]
+                    yield deps[next(i for i in isin if i)]
                 elif err_missing:
                     raise ValueError(
                          'Must provide a Feature Instance of {}'.format(
@@ -173,12 +174,19 @@ class Feature(ParameterMixin, MetadataMixin):
 
     def validate_name(self):
         """Checks for uniqueness of feature name in all dependent features."""
-        names = [f.name for f in self.featureset(
-            autoinst=False, err_missing=False).values()]
-        if not len(names) == len(set(names)):
+        def getname(f):
+            if hasattr(f, 'name') and isinstance(f.name, str):
+                return f.name
+            elif isclass(f):
+                return f.__name__
+
+        names = [getname(f) for f in self.dependencies()]
+        myname = names.pop(0)
+        if myname in names:
             raise ValueError(
-                'You have defined duplicate feature names '
-                'this is not allowed: {}.'.format(names))
+                'You have defined duplicate feature names this is not allowed '
+                'Already existing feature names: {}.'.format(
+                    set(names)))
 
     def new(self):
         """Returns new initial feature instance with same parameters."""

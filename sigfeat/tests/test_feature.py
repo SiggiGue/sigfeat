@@ -1,10 +1,9 @@
 import pytest
-from sigfeat.feature import Feature, hide
+from sigfeat.feature import Feature
 from sigfeat.parameter import Parameter
 
 
 class A(Feature):
-    name = Parameter(default='A')
     param = Parameter()
 
     def process(self, *args, **kwargs):
@@ -34,7 +33,8 @@ class C(Feature):
 
 class D(Feature):
     def requires(self):
-        yield C(name='c', param=1)
+        yield C(param=1)
+        yield B
         yield A(name='SpecialA', param=2)
 
     def process(self, *args, **kwargs):
@@ -50,8 +50,8 @@ def test_featureset():
     assert features[0][0] != a1.fid
     assert features[0][0] != a1
     a1 = A(name='a', param=1)
-    assert features[0][0] == a1.fid
-    assert features[1][0] == b1.fid
+    assert features[0][0] == a1.name
+    assert features[1][0] == b1.name
     assert features[1][1] == b1
 
 
@@ -63,6 +63,22 @@ def test_featureset_special():
 def test_duplicate_name_error():
     with pytest.raises(ValueError):
         D(name='SpecialA')
+
+
+def test_missing_feature_instance():
+    class F(Feature):
+        def requires(self):
+            yield A
+            yield B
+
+        def process(self, *args):
+            pass
+
+    with pytest.raises(ValueError):
+        F().featureset()
+
+    f = F()
+    f.featureset(autoinst=True, err_missing=False)
 
 
 def test_fid():
@@ -77,28 +93,8 @@ def test_hide_and_hidden():
     assert d.hidden
     d.hide(False)
     assert not d.hidden
-    assert hide(d).hidden
+    assert d.hide(True).hidden
 
-
-# deprecated singleton tests
-# def test_instance_singletons_sampe_parameter():
-#     class A(Feature):
-#         name = Parameter(default='A')
-#         param = Parameter()
-#
-#         def process(self, *args, **kwargs):
-#             pass
-#
-#     a1 = A(param=1)
-#     a2 = A(param=1)
-#     a3 = A(param=3)
-#     assert a1 == a2
-#     assert a1 != a3
-#     assert a2 != a3
-#     b1 = A(name='B', param=1)
-#     b2 = A(name='B', param=1)
-#     assert b1 == b2
-#     assert b1 != a1
 
 if __name__ == '__main__':
     pytest.main()

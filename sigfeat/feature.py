@@ -105,7 +105,7 @@ class Feature(ParameterMixin, MetadataMixin):
             This is the feature result for the current data (block).
 
         """
-        print('Processing', self.__class__.__name__)
+        raise NotImplementedError  # pragma: no cover
 
     def on_finished(self, source, featureset, sink):
         """Override this method to be run after extraction.
@@ -120,7 +120,7 @@ class Feature(ParameterMixin, MetadataMixin):
         pass
 
     def dependencies(self):
-        """Yields the dependencies of this feature."""
+        """Yields all dependencies of this feature."""
         yield self
         if self._requirements:
             requirements = self._requirements
@@ -140,13 +140,13 @@ class Feature(ParameterMixin, MetadataMixin):
                 isin = [isinstance(d, dep) for d in deps]
                 if any(isin):
                     yield deps[next(i for i in isin if i)]
+                elif autoinst:
+                    yield from dep().gen_dependencies_instances(
+                        autoinst=autoinst, err_missing=err_missing)
                 elif err_missing:
                     raise ValueError(
                          'Must provide a Feature Instance of {}'.format(
                              dep))
-                elif autoinst:
-                    yield from dep().gen_dependencies_instances(
-                        autoinst=autoinst, err_missing=err_missing)
             else:
                 yield dep
 
@@ -262,18 +262,18 @@ def features_to_featureset(features,
 # parametrized singletons is implemented in
 # _IndividualBorgs and can be subclassed if
 # multithreading is not needed.
-
-
-class _IndividualBorgs(object):
-    "Add this as subclass if you want parametrized singletons."
-    _instances = {}
-
-    def __new__(cls, *args, **kwargs):
-        fid = cls.__name__, str(args), str(kwargs)
-        if fid not in cls._instances:
-            instance = object.__new__(cls)
-            instance._fid = fid
-            cls._instances[fid] = instance
-        else:
-            instance = cls._instances[fid]
-        return instance
+#
+#
+# class _IndividualBorgs(object):
+#     "Add this as subclass if you want parametrized singletons."
+#     _instances = {}
+#
+#     def __new__(cls, *args, **kwargs):
+#         fid = cls.__name__, str(args), str(kwargs)
+#         if fid not in cls._instances:
+#             instance = object.__new__(cls)
+#             instance._fid = fid
+#             cls._instances[fid] = instance
+#         else:
+#             instance = cls._instances[fid]
+#         return instance

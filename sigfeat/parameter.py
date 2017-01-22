@@ -40,6 +40,9 @@ class ParameterMixin:
     """
     _parameters = None
 
+    def __init__(self, **parameters):
+        self.unroll_parameters(parameters)
+
     def unroll_parameters(self, parameters):
         """This method must be called to collect all parameters and provide
         them as attributes.

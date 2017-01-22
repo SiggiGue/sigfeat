@@ -1,7 +1,10 @@
 import pytest
 from sigfeat.feature import Feature
+from sigfeat.feature import features_to_featureset
 from sigfeat.parameter import Parameter
 
+
+# Defining some Feature classes:
 
 class A(Feature):
     param = Parameter()
@@ -33,12 +36,52 @@ class C(Feature):
 
 class D(Feature):
     def requires(self):
+        # info to this special case class requirements:
+        # yeah B is yielded as a Feture class but in C is an instance of B
+        # is yielded. So if you give a Class in the requirements a instance
+        # of this class will picked. If no instance is provided you will
+        # get an error since the instance is missing or you can
+        # set a autoins=True and err_missing=False to automatically create
+        # required feature instances if needed.
         yield C(param=1)
         yield B
         yield A(name='SpecialA', param=2)
 
     def process(self, *args, **kwargs):
         pass
+
+
+# Test Feature methods
+
+def test_requirements():
+    b = B()
+    req = next(b.requires())
+    assert isinstance(req, A)
+    assert req.fid == A(name='a', param=1).fid
+    assert req.name == A(name='a', param=1).name
+    assert len(b._requirements) == 0
+
+
+def test_override_requirements():
+    b = B(requirements=[A(param=2)])
+    assert len(b._requirements) == 1
+    deps = list(b.dependencies())
+    assert deps[-1].param == 2
+
+
+def test_on_start():
+    assert A().on_start(1, 2, 3) is None
+
+
+def test_process():
+    with pytest.raises(TypeError):
+        Feature()
+        Feature.process(1, 2, 3)
+    A().process(1, 2)
+
+
+def test_on_finished():
+    assert A().on_finished(1, 2, 3) is None
 
 
 def test_featureset():
@@ -53,6 +96,14 @@ def test_featureset():
     assert features[0][0] == a1.name
     assert features[1][0] == b1.name
     assert features[1][1] == b1
+
+
+def test_featureset_new():
+    b = B()
+    feature = tuple(b.featureset(new=True).values())[-1]
+    assert feature != b
+    feature = tuple(b.featureset(new=False).values())[-1]
+    assert feature == b
 
 
 def test_featureset_special():
@@ -95,6 +146,16 @@ def test_hide_and_hidden():
     assert not d.hidden
     assert d.hide(True).hidden
 
+
+def test_features_to_featureset():
+    fset = features_to_featureset(
+            [A(), B(), D()]
+        )
+    assert len(fset) == 7  # since B depends not on A.name=='a'
+    with pytest.raises(ValueError):
+        fset = features_to_featureset(
+            [D()]
+        )
 
 if __name__ == '__main__':
     pytest.main()

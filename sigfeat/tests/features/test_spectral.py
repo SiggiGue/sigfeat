@@ -34,5 +34,26 @@ def test_spectral_features():
     assert abs(np.median(res['SpectralFlatness'])) < 1e-3
     # TODO
 
+
+def test_spectral_features_no_window_branch():
+    from sigfeat.features.spectral import AbsRfft
+    features = [
+        SpectralCentroid(),
+        SpectralFlatness(),
+        SpectralFlux(),
+        SpectralCrestFactor(),
+        SpectralRolloff(),
+        AbsRfft(window=False),
+    ]
+    etr = Extractor(*features)
+    x = np.sin(1000*2*np.pi*np.linspace(0, 1, 44100))
+    src = ArraySource(
+        np.tile(x, (2, 1)).T,
+        samplerate=44100,
+        blocksize=2048,
+        overlap=1024)
+    snk = etr.extract(src, DefaultDictSink())
+
+
 if __name__ == '__main__':
     pytest.main()

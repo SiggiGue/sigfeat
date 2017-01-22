@@ -17,6 +17,10 @@ def test_parameterclass_defaults():
         ('parameter_number_three', None))
 
 
+def test_parameterclass_set_default():
+    ParameterMixinSubclass.p1.default = 0
+
+
 def test_parameterclass_overrided():
     pc = ParameterMixinSubclass()
     t = ParameterMixinSubclass(
@@ -36,6 +40,12 @@ def test_get_class_parameters():
         ('parameter_number_three',
             ParameterMixinSubclass.parameter_number_three)
     )
+
+
+def test_repr():
+    res = ParameterMixinSubclass.p2.__repr__()
+    assert isinstance(res, str)
+
 
 if __name__ == '__main__':
     pytest.main()

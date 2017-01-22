@@ -24,7 +24,7 @@ class Parameter(object):
     @default.setter
     def default(self, value):
         """Sets the default value, validates value first."""
-        self._default = self._validate(value)
+        self._default = self.validate(value)
 
     def __repr__(self):
         return "{}(default={})".format(

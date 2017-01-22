@@ -75,7 +75,7 @@ class ArraySource(Source):
         """Returns generator that yields blocks out of the array."""
         indexrange = range(
             0,
-            len(self._array)-self.blocksize,
+            len(self._array)-self.blocksize+1,
             self.blocksize-self.overlap)
         for index in indexrange:
             yield self._array[index:index+self.blocksize], index

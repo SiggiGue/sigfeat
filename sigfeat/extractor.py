@@ -34,9 +34,9 @@ class Extractor(object):
 
     """
     def __init__(self, *features, autoinst=True):
-        self.features = features
+        self._features = features
         self.featureset = features_to_featureset(
-            self.features, autoinst=autoinst)
+            self._features, autoinst=autoinst)
 
     def _extract(self, source):
         """Yields extracted results."""
@@ -97,7 +97,7 @@ class Extractor(object):
         If a new source shall be processed this may be usefull or needed.
 
         """
-        self.featureset = features_to_featureset(self.features, new=True)
+        self.featureset = features_to_featureset(self._features, new=True)
 
     @staticmethod
     def get_parameters_and_metadata(obj):

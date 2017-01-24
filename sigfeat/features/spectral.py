@@ -40,6 +40,7 @@ class Rfft(HiddenFeature):
         self.frequencies = rfftfreq(self.nfft, 1.0/source.samplerate)
         self.add_metadata(
             'frequencies', self.frequencies)
+        self.add_metadata('nfft', self.nfft)
 
     def process(self, data, featuredata):
         if self.window:

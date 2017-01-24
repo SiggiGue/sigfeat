@@ -54,7 +54,15 @@ class ParameterMixin:
         """
         self._parameters = tuple(self._gen_param_values(parameters))
         for pname, pval in self._parameters:
-            self._set_param(pname, pval)
+            self._set_param_as_attr(pname, pval)
+
+    # def change_parameter(self, name, value):
+    #     if not self._parameters:
+    #         raise KeyError('You must call .unroll_parameters first.')
+    #     paramsd = dict(self._parameters)
+    #     paramsd[name] = value
+    #     self._set_param_as_attr(name, value)
+    #     self._parameters = tuple(paramsd.items())
 
     @property
     def parameters(self):
@@ -64,7 +72,7 @@ class ParameterMixin:
         else:
             return tuple(self._gen_parameters())
 
-    def _set_param(self, name, value):
+    def _set_param_as_attr(self, name, value):
         """Sets key value pair as attribut of self."""
         return setattr(self, name, value)
 

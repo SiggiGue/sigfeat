@@ -149,8 +149,9 @@ def test_hide_and_hidden():
 
 def test_features_to_featureset():
     fset = features_to_featureset(
-            [A(), B(), D()]
+            [A(param='First A'), A(), B(), D(), ]
         )
+    assert fset['A'].param == 'First A'
     assert len(fset) == 7  # since B depends not on A.name=='a'
     with pytest.raises(ValueError):
         fset = features_to_featureset(

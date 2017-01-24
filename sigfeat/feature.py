@@ -166,8 +166,8 @@ class Feature(ParameterMixin, MetadataMixin):
             Keys are ``fid`` and values are feature instances.
 
         """
-        deps = reversed(tuple(self.gen_dependencies_instances(
-            autoinst, err_missing)))
+        deps = reversed(tuple(
+            self.gen_dependencies_instances(autoinst, err_missing)))
         if new:
             deps = [d.new() for d in deps]
         return OrderedDict((feat.name, feat) for feat in deps)
@@ -248,7 +248,7 @@ def features_to_featureset(features,
     featsets = (feat.featureset(
         new=new,
         autoinst=autoinst,
-        err_missing=False) for feat in features)
+        err_missing=False) for feat in reversed(features))
     featureset = next(featsets)
     for fset in featsets:
         featureset.update(fset)

@@ -38,12 +38,12 @@ def test_spectral_features():
 def test_spectral_features_no_window_branch():
     from sigfeat.features.spectral import AbsRfft
     features = [
+        AbsRfft(window=False),
         SpectralCentroid(),
         SpectralFlatness(),
         SpectralFlux(),
         SpectralCrestFactor(),
         SpectralRolloff(),
-        AbsRfft(window=False),
     ]
     etr = Extractor(*features)
     x = np.sin(1000*2*np.pi*np.linspace(0, 1, 44100))
@@ -52,7 +52,7 @@ def test_spectral_features_no_window_branch():
         samplerate=44100,
         blocksize=2048,
         overlap=1024)
-    snk = etr.extract(src, DefaultDictSink())
+    etr.extract(src, DefaultDictSink())
 
 
 if __name__ == '__main__':

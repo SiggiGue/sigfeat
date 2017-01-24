@@ -29,7 +29,7 @@ class MelSpectrum(HiddenFeature):
             self.fmax,
             nfft,
             source.samplerate
-        )
+        )  # TODO scaling by bandwidth not done until now
 
     def process(self, data, resd):
         return self.melmat @ resd['AbsRfft']
@@ -44,7 +44,7 @@ class LogMelSpectrum(HiddenFeature):
 
 
 class MFCC(Feature):
-    numbins = Parameter(13)
+    numbins = Parameter(20)
 
     def requires(self):
         yield LogMelSpectrum

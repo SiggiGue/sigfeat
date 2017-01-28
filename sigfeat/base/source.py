@@ -7,7 +7,7 @@
 import abc
 import six
 from .parameter import ParameterMixin, Parameter
-from ._metadata import MetadataMixin
+from .metadata import MetadataMixin
 
 
 @six.add_metaclass(abc.ABCMeta)

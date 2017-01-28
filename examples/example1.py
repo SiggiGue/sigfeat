@@ -1,15 +1,11 @@
 from pylab import np, plt
 from scipy.signal import chirp
 
+from sigfeat import Extractor
 from sigfeat.source import ArraySource
-from sigfeat.preprocess.mix import MeanMix
-import sigfeat.feature.common
-import sigfeat.feature.temporal
-import sigfeat.feature.spectral
-from sigfeat import feature as fts
-
-from sigfeat.extractor import Extractor
+from sigfeat.preprocess import MeanMix
 from sigfeat.sink import DefaultDictSink
+from sigfeat import feature as fts
 
 
 t = np.linspace(0, 2, 2*44100)
@@ -32,9 +28,6 @@ features = (
     fts.Index(),
     fts.RootMeanSquare(),
     fts.Peak(),
-    fts.StandardDeviation(),
-    fts.Kurtosis(),
-    fts.Skewness(),
     fts.CrestFactor(),
     fts.ZeroCrossingRate(),
     fts.SpectralFlux(),

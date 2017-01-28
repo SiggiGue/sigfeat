@@ -1,8 +1,8 @@
+from sigfeat import Extractor
+from sigfeat import feature as fts
 from sigfeat.source import SoundFileSource
 from sigfeat.preprocess import MeanMix
-from sigfeat import features as fts
 from sigfeat.sink import DefaultDictSink
-from sigfeat.extractor import Extractor
 
 
 extractor = Extractor(
@@ -15,8 +15,6 @@ extractor = Extractor(
     fts.ZeroCrossingRate(),
     fts.RootMeanSquare(),
     fts.Peak(),
-    fts.Kurtosis(),
-    fts.Skewness(),
 )
 
 

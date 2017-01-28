@@ -16,7 +16,7 @@ import six
 from inspect import isclass
 from collections import OrderedDict
 from .parameter import ParameterMixin
-from ._metadata import MetadataMixin
+from .metadata import MetadataMixin
 
 
 @six.add_metaclass(abc.ABCMeta)

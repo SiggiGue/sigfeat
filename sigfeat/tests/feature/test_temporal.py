@@ -2,16 +2,16 @@ import pytest
 
 import numpy as np
 
-from sigfeat.features.temporal import CrestFactor
-from sigfeat.features.temporal import ZeroCrossingRate
-from sigfeat.features.temporal import StatMoments
-from sigfeat.features.temporal import CentroidAbsSignal
-from sigfeat.features.temporal import FlatnessAbsSignal
-from sigfeat.features.temporal import RootMeanSquare
-from sigfeat.features.temporal import Peak
-from sigfeat.features.temporal import Kurtosis
-from sigfeat.features.temporal import Skewness
-from sigfeat.features.temporal import StandardDeviation
+from sigfeat.feature.temporal import CrestFactor
+from sigfeat.feature.temporal import ZeroCrossingRate
+from sigfeat.feature.temporal import StatMoments
+from sigfeat.feature.temporal import CentroidAbsSignal
+from sigfeat.feature.temporal import FlatnessAbsSignal
+from sigfeat.feature.temporal import RootMeanSquare
+from sigfeat.feature.temporal import Peak
+from sigfeat.feature.temporal import Kurtosis
+from sigfeat.feature.temporal import Skewness
+from sigfeat.feature.temporal import StandardDeviation
 
 from sigfeat.source import ArraySource
 from sigfeat.extractor import Extractor

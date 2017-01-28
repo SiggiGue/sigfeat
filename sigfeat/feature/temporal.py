@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.stats import skew, kurtosis
 
-from ..feature import Feature
-from ..feature import HiddenFeature
+from .feature import Feature
+from .feature import HiddenFeature
 from ..parameter import Parameter
 
 from .common import centroid

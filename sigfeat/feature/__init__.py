@@ -1,3 +1,5 @@
+from .feature import Feature
+from .feature import features_to_featureset
 from .spectral import (
     SpectralFlux,
     SpectralRolloff,
@@ -19,6 +21,7 @@ from .temporal import (
 )
 
 __all__ = [
+    'Feature',
     'SpectralFlux',
     'SpectralRolloff',
     'SpectralCentroid',

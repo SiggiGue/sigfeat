@@ -3,8 +3,8 @@ from scipy.fftpack import dct
 
 from pyfilterbank.melbank import compute_melmat
 
-from ..feature import Feature
-from ..feature import HiddenFeature
+from .feature import Feature
+from .feature import HiddenFeature
 from ..parameter import Parameter
 
 from .spectral import AbsRfft
@@ -50,4 +50,4 @@ class MFCC(Feature):
         yield LogMelSpectrum
 
     def process(self, data, resd):
-        return dct(resd['LogMelSpectrum'], type=3, n=self.numbins)
+        return dct(resd['LogMelSpectrum'], type=2, n=self.numbins)

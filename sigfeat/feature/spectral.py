@@ -1,8 +1,8 @@
 import numpy as np
 from scipy.fftpack import rfft, rfftfreq
 
-from ..feature import Feature
-from ..feature import HiddenFeature
+from .feature import Feature
+from .feature import HiddenFeature
 from ..parameter import Parameter
 
 from .common import WindowedSignal

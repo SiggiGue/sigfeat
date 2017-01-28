@@ -1,15 +1,15 @@
 import numpy as np
 
-from sigfeat.features.common import Index
-from sigfeat.features.common import WindowedSignal
+from sigfeat.feature.common import Index
+from sigfeat.feature.common import WindowedSignal
 from sigfeat.source import ArraySource
-from sigfeat.features.common import centroid
-from sigfeat.features.common import flatness
-from sigfeat.features.common import flux
-from sigfeat.features.common import rolloff
-from sigfeat.features.common import crest_factor
-from sigfeat.features.common import zero_crossing_count
-from sigfeat.features.common import moments
+from sigfeat.feature.common import centroid
+from sigfeat.feature.common import flatness
+from sigfeat.feature.common import flux
+from sigfeat.feature.common import rolloff
+from sigfeat.feature.common import crest_factor
+from sigfeat.feature.common import zero_crossing_count
+from sigfeat.feature.common import moments
 
 
 def test_index():

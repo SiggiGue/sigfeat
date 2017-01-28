@@ -2,11 +2,11 @@ import pytest
 
 import numpy as np
 
-from sigfeat.features.spectral import SpectralCentroid
-from sigfeat.features.spectral import SpectralFlatness
-from sigfeat.features.spectral import SpectralFlux
-from sigfeat.features.spectral import SpectralCrestFactor
-from sigfeat.features.spectral import SpectralRolloff
+from sigfeat.feature.spectral import SpectralCentroid
+from sigfeat.feature.spectral import SpectralFlatness
+from sigfeat.feature.spectral import SpectralFlux
+from sigfeat.feature.spectral import SpectralCrestFactor
+from sigfeat.feature.spectral import SpectralRolloff
 
 from sigfeat.source import ArraySource
 from sigfeat.extractor import Extractor
@@ -36,7 +36,7 @@ def test_spectral_features():
 
 
 def test_spectral_features_no_window_branch():
-    from sigfeat.features.spectral import AbsRfft
+    from sigfeat.feature.spectral import AbsRfft
     features = [
         AbsRfft(window=False),
         SpectralCentroid(),

@@ -7,7 +7,7 @@ Sink.
 """
 
 from .result import Result
-from .feature import features_to_featureset
+from .feature.feature import features_to_featureset
 
 
 class Extractor(object):

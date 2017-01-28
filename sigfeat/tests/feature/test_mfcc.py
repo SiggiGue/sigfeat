@@ -5,9 +5,9 @@ from sigfeat.source import ArraySource
 from sigfeat.extractor import Extractor
 from sigfeat.sink import DefaultDictSink
 
-from sigfeat.features.mfcc import MelSpectrum
-from sigfeat.features.mfcc import LogMelSpectrum
-from sigfeat.features.mfcc import MFCC
+from sigfeat.feature.mfcc import MelSpectrum
+from sigfeat.feature.mfcc import LogMelSpectrum
+from sigfeat.feature.mfcc import MFCC
 
 
 def mkas():

@@ -1,6 +1,6 @@
 import numpy as np
 
-from sigfeat.features.delta import Delta
+from sigfeat.feature.delta import Delta
 from sigfeat.feature import Feature
 from sigfeat.source import ArraySource
 from sigfeat.extractor import Extractor

@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from scipy.fftpack import dct
 
@@ -19,6 +20,7 @@ class MelSpectrum(HiddenFeature):
         yield AbsRfft
 
     def on_start(self, source, featureset, sink):
+        warnings.warn('The mfcc results are not validated until now.')
         fftmax = np.max(featureset['AbsRfft'].frequencies)
         nfft = featureset['AbsRfft'].nfft
         if not self.fmax or self.fmax > fftmax:

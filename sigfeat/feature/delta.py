@@ -2,8 +2,8 @@ from collections import deque
 
 import numpy as np
 
-from .feature import Feature
-from ..parameter import Parameter
+from ..base import Feature
+from ..base import Parameter
 
 
 class Delta(Feature):

@@ -9,7 +9,7 @@ extraction. Instances of Preprocess subclasses are consumed by the Extractor.
 import abc
 import six
 
-from ..source import Source
+from .source import Source
 
 
 @six.add_metaclass(abc.ABCMeta)

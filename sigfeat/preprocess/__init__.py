@@ -1,4 +1,6 @@
-from .preprocess import Preprocess
+from ..base import Preprocess
 
+from .mix import MeanMix
+from .mix import SumMix
 
-__all__ = ['Preprocess']
+__all__ = ['MeanMix', 'SumMix']

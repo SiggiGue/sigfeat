@@ -2,9 +2,9 @@ import numpy as np
 from scipy.signal import get_window
 from scipy.stats import gmean
 
-from .feature import Feature
-from .feature import HiddenFeature
-from ..parameter import Parameter
+from ..base import Feature
+from ..base import HiddenFeature
+from ..base import Parameter
 
 
 class Index(Feature):

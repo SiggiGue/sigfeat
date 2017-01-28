@@ -1,7 +1,8 @@
-from sigfeat.sink import Sink
 import h5py
 from datetime import datetime
 import yaml
+
+from ..base import Sink
 
 
 class Hdf5Sink(Sink, h5py.File):  # pragma: no coverage

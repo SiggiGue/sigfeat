@@ -1,5 +1,5 @@
 import pytest
-from sigfeat._metadata import MetadataMixin
+from sigfeat.base._metadata import MetadataMixin
 
 
 class MetadataMixinSubclass(MetadataMixin):

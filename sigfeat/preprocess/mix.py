@@ -1,7 +1,7 @@
 import numpy as np
 
-from .preprocess import Preprocess
-from ..parameter import Parameter
+from ..base import Preprocess
+from ..base import Parameter
 
 
 class SumMix(Preprocess):

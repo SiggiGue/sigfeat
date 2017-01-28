@@ -1,4 +1,4 @@
-from .sink import Sink
+from ..base import Sink
 from .default import DefaultDictSink
 
 

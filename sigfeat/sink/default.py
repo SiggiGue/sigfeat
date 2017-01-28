@@ -1,5 +1,6 @@
-from .sink import Sink
 from collections import defaultdict
+
+from ..base import Sink
 
 
 class DefaultDictSink(Sink, dict):

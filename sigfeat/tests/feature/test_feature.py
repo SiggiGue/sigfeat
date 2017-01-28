@@ -1,7 +1,7 @@
 import pytest
-from sigfeat.feature import Feature
-from sigfeat.feature import features_to_featureset
-from sigfeat.parameter import Parameter
+from sigfeat.base import Feature
+from sigfeat.base.feature import features_to_featureset
+from sigfeat.base import Parameter
 
 
 # Defining some Feature classes:

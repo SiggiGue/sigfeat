@@ -1,5 +1,5 @@
 import pytest
-from sigfeat.result import Result
+from sigfeat.base.result import Result
 
 
 def test_result_creation():

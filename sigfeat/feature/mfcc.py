@@ -3,9 +3,9 @@ from scipy.fftpack import dct
 
 from pyfilterbank.melbank import compute_melmat
 
-from .feature import Feature
-from .feature import HiddenFeature
-from ..parameter import Parameter
+from ..base import Feature
+from ..base import HiddenFeature
+from ..base import Parameter
 
 from .spectral import AbsRfft
 

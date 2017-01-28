@@ -1,6 +1,6 @@
 import pytest
-from sigfeat.parameter import Parameter
-from sigfeat.parameter import ParameterMixin
+from sigfeat.base import Parameter
+from sigfeat.base.parameter import ParameterMixin
 
 
 class ParameterMixinSubclass(ParameterMixin):

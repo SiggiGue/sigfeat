@@ -4,7 +4,7 @@ from datetime import datetime
 import yaml
 
 
-class Hdf5Sink(Sink, h5py.File):
+class Hdf5Sink(Sink, h5py.File):  # pragma: no coverage
     """Sink writing data directly into a hdf5 file.
 
     WARNING: This implementation is quite bad until now!
@@ -57,7 +57,7 @@ class Hdf5Sink(Sink, h5py.File):
             self[key].resize((self._pos, num))
 
 
-def _dump_dict_to_hdf(d, hdf):
+def _dump_dict_to_hdf(d, hdf):  # pragma: no coverage
     """Adds keys of given dict as groups and values as datasets
     to the given hdf-file (by string or object) or group object.
 

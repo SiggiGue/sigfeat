@@ -1,6 +1,16 @@
 #Signal Feature Extraction Framework
 
-Developed with focus on audio signals.
+This library is developed with focus on audio signals but it's base functionality is
+generalized to all kinds of (time)-signals.
+
+The key features of this library are:
+
+- sigfeat provides an appropriate abstraction layer for the feature extraction problem:
+  ![Base abstraction](./docs/diagram.svg)
+- sigfeat minimizes computational cost by reducing redundancy
+  of interim computation results.
+- sigfeat has a low memory footprint due to generators (except your own defined features blow up memory...).
+
 
 ##Structure
 

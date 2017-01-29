@@ -6,6 +6,7 @@ generalized to all kinds of (time)-signals.
 The key features of this library are:
 
 - sigfeat provides an appropriate abstraction layer for the feature extraction problem:
+
   ![](./docs/diagram.png)
 
 - sigfeat minimizes computational cost by reducing redundancy

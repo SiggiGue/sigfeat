@@ -12,7 +12,7 @@ The key features of this library are:
 - sigfeat **minimizes computational cost** by avoiding repeated computation of (interim) results. (For instance if many features depend on a result of another feature, this feature result is only computed once. Simple example: all Spectral features use one FFT output.)
 - sigfeat has a **low memory footprint** due to generators (except your own defined features blow up memory or your sources load all data at once...).
 
-See the examples folder and the feature subpackage to check the intended usage of the library.
+See the [examples](https://github.com/SiggiGue/sigfeat/tree/develop/examples) folder, the [feature](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/feature), [source](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/source) and [sink](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/sink) subpackage to check the intended usage of the library.
 
 Some parts of the library are inspired by [luigi](https://github.com/spotify/luigi).
 

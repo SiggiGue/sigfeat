@@ -8,7 +8,7 @@ from sigfeat.feature.spectral import SpectralFlux
 from sigfeat.feature.spectral import SpectralCrestFactor
 from sigfeat.feature.spectral import SpectralRolloff
 
-from sigfeat.source import ArraySource
+from sigfeat.source.array import ArraySource
 from sigfeat.extractor import Extractor
 from sigfeat.sink import DefaultDictSink
 

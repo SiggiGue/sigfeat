@@ -1,8 +1,5 @@
 from sigfeat import Extractor
 from sigfeat import feature as fts
-from sigfeat.source import SoundFileSource
-from sigfeat.preprocess import MeanMix
-from sigfeat.sink import DefaultDictSink
 
 
 extractor = Extractor(
@@ -22,6 +19,10 @@ if __name__ == '__main__':
     from pylab import plt
     import pandas as pd
     from pandas.tools.plotting import scatter_matrix
+
+    from sigfeat.source.soundfile import SoundFileSource
+    from sigfeat.preprocess import MeanMix
+    from sigfeat.sink import DefaultDictSink
 
     src = MeanMix(SoundFileSource(
         'Test.wav',

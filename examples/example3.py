@@ -8,7 +8,7 @@ extmfcc = Extractor(MFCC())
 if __name__ == '__main__':
     from pylab import plt, np
 
-    from sigfeat.source import SoundFileSource
+    from sigfeat.source.soundfile import SoundFileSource
     from sigfeat.preprocess import MeanMix
     from sigfeat.sink import DefaultDictSink
 

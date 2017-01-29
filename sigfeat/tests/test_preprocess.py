@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from sigfeat.source import ArraySource
+from sigfeat.source.array import ArraySource
 from sigfeat.preprocess import Preprocess
 from sigfeat.preprocess.mix import MeanMix
 from sigfeat.preprocess.mix import SumMix

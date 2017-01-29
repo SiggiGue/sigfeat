@@ -1,7 +1,7 @@
 import pytest
-from sigfeat.source import Source
-from sigfeat.source import SoundFileSource
-from sigfeat.source import ArraySource
+from sigfeat.base import Source
+from sigfeat.source.soundfile import SoundFileSource
+from sigfeat.source.array import ArraySource
 
 
 def test_source():

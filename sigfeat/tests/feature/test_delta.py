@@ -2,7 +2,7 @@ import numpy as np
 
 from sigfeat.feature.delta import Delta
 from sigfeat.feature import Feature
-from sigfeat.source import ArraySource
+from sigfeat.source.array import ArraySource
 from sigfeat.extractor import Extractor
 from sigfeat.sink import DefaultDictSink
 

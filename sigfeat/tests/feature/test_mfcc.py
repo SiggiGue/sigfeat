@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from sigfeat.source import ArraySource
+from sigfeat.source.array import ArraySource
 from sigfeat.extractor import Extractor
 from sigfeat.sink import DefaultDictSink
 

@@ -2,7 +2,7 @@ from pylab import np, plt
 from scipy.signal import chirp
 
 from sigfeat import Extractor
-from sigfeat.source import ArraySource
+from sigfeat.source.array import ArraySource
 from sigfeat.preprocess import MeanMix
 from sigfeat.sink import DefaultDictSink
 from sigfeat import feature as fts

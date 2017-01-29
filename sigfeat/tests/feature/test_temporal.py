@@ -13,7 +13,7 @@ from sigfeat.feature.temporal import Kurtosis
 from sigfeat.feature.temporal import Skewness
 from sigfeat.feature.temporal import StandardDeviation
 
-from sigfeat.source import ArraySource
+from sigfeat.source.array import ArraySource
 from sigfeat.extractor import Extractor
 from sigfeat.sink import DefaultDictSink
 

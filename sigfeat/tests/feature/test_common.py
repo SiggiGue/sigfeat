@@ -2,7 +2,7 @@ import numpy as np
 
 from sigfeat.feature.common import Index
 from sigfeat.feature.common import WindowedSignal
-from sigfeat.source import ArraySource
+from sigfeat.source.array import ArraySource
 from sigfeat.feature.common import centroid
 from sigfeat.feature.common import flatness
 from sigfeat.feature.common import flux

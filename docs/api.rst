@@ -36,14 +36,17 @@ Extractor
 Sink
 ----
 
-.. automodule:: sigfeat.sink
+.. automodule:: sigfeat.sink.default
   :members:
 
+
+.. automodule:: sigfeat.sink.hdf5
+  :members:
 
 Preprocess
 ----------
 
-.. automodule:: sigfeat.preprocess
+.. automodule:: sigfeat.preprocess.mix
   :members:
 
 

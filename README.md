@@ -5,12 +5,12 @@ generalized to all kinds of (time)-signals.
 
 The key features of this library are:
 
-- sigfeat provides an appropriate abstraction layer for the feature extraction problem:
+- sigfeat provides an **appropriate abstraction layer** for the feature extraction problem:
 
   ![](./docs/diagram.png)
 
-- sigfeat minimizes computational cost by avoiding repeated computation of (interim) results. (For instance if many features depend on a result of another feature, this feature result is only computed once. Simple example: all Spectral features use one FFT output.)
-- sigfeat has a low memory footprint due to generators (except your own defined features blow up memory...).
+- sigfeat **minimizes computational cost** by avoiding repeated computation of (interim) results. (For instance if many features depend on a result of another feature, this feature result is only computed once. Simple example: all Spectral features use one FFT output.)
+- sigfeat has a **low memory footprint** due to generators (except your own defined features blow up memory or your sources load all data at once...).
 
 See the examples folder and the feature subpackage to check the intended usage of the library.
 

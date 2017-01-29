@@ -1,4 +1,4 @@
-"""This module implements the Parameter and its mixin class.
+"""This module implements the Parameter and it's mixin class.
 
 Purpose is, to distinguish parameters of objects from other attributes.
 Parameters of instances will be extracted into Sink.
@@ -55,14 +55,6 @@ class ParameterMixin:
         self._parameters = tuple(self._gen_param_values(parameters))
         for pname, pval in self._parameters:
             self._set_param_as_attr(pname, pval)
-
-    # def change_parameter(self, name, value):
-    #     if not self._parameters:
-    #         raise KeyError('You must call .unroll_parameters first.')
-    #     paramsd = dict(self._parameters)
-    #     paramsd[name] = value
-    #     self._set_param_as_attr(name, value)
-    #     self._parameters = tuple(paramsd.items())
 
     @property
     def parameters(self):

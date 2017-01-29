@@ -1,8 +1,8 @@
 """Implements a simple preprocess base class.
 
 For processing blocks of a source before extracting features.
-The may be some preemphasis/winowing etc. needed before feature
-extraction. Instances of Preprocess subclasses are consumed by the Extractor.
+Preprocess behaves like a Source and is consumed by
+extractor or another Preprocess.
 
 """
 
@@ -21,9 +21,8 @@ class Preprocess(Source):
     Examples
     --------
 
-    src = YourPreprocess(YourSource(...))
-
-    extractor.extract(src, ...)
+    >>> src = YourPreprocess(YourSource(...))
+    >>> extractor.extract(src, ...)
 
     """
     def __init__(self, source, **parameters):

@@ -1,8 +1,4 @@
-"""Implements abstract Sink class and some usefull Sink subclasses
-
-- :py:class:`DefaultDictSink`:  Sink receiving results in dictionary.
-
-"""
+"""Implements the abstract Sink class."""
 
 import abc
 import six

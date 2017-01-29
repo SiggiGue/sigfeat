@@ -1,7 +1,7 @@
 """Mixin for Metadata.
 
-Adds methods `add_metadata()`, `extend_metadata()` and
-`fetch_metadata_as_attrs()` to the class.
+Adds methods ``add_metadata()``, ``extend_metadata()`` and
+``fetch_metadata_as_attrs()`` to the class.
 
 Metadata will be extracted into Sink. So created feature datasets
 contain metadata for e.g. features and sources.
@@ -14,12 +14,12 @@ class MetadataMixin:
     Adding metadata functionality to classes.
     Overrides:
 
-    ``self._metadata``
-    ``self.metadata``
-    ``_init_metadata_list``
-    ``add_metadata``
-    ``extend_metadata``
-    ``fetch_metadata_as_attrs``
+    - ``._metadata``
+    - ``.metadata``
+    - ``._init_metadata_list``
+    - ``.add_metadata``
+    - ``.extend_metadata``
+    - ``.fetch_metadata_as_attrs``
 
     """
     _metadata = None

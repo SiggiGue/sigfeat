@@ -1,8 +1,6 @@
 """This module implements the abstract base Feature class.
 
 :py:class:`Feature` is subclassed for implementing Signal Features.
-:py:class:`FeatureSet` is used to create unique collections of multiple
-Feature instances and is used in :py:class:`Extractor`.
 
 TODO: What happens if i have a hidden feature but add a instance of tha same
 that is not hidden? Mus be solved in the FeatureSet!
@@ -68,7 +66,14 @@ class Feature(ParameterMixin, MetadataMixin):
     def on_start(self, source, featureset, sink):
         """Override this method if your feature needs some initialization.
 
-        The Extractor will give you kwargs source, featureset and sink.
+        The Extractor will give you source, featureset and sink.
+
+
+        Parameters
+        ----------
+        source : source
+        featureset : OrderedDict of features
+        sink : Sink
 
         """
         pass
@@ -77,7 +82,7 @@ class Feature(ParameterMixin, MetadataMixin):
         """Override this method if your feature depends on other features.
 
         You can return Feature classes and Feature instances you need for
-        your feature.
+        your feature. Yielding is also allowed.
 
         """
         return []
@@ -86,22 +91,24 @@ class Feature(ParameterMixin, MetadataMixin):
     def process(self, data, result):
         """Override this method returning process results.
 
-        The data from the processed source will be in data=block,index,...,
-        The results from features your feature requires will be in the
-        resuld argument as dictionary.
+        The data from the source will be in
+        ``data`` (usually ``data = block,index,...,``).
+
+        The required results from other features will be in the
+        result argument (dict like `Result()`).
 
         Parameters
         ----------
         data : block, index
-            Or the data yielded from your source.
-        result : Result, dictlike
+            Or the data generated from your source.
+        result : Result
             The results from other features of current data.
             If you provide your required features in the requires() method,
             you will be able to access the results from those features.
 
         Returns
         -------
-        resultdata : e.g. scalar, ndarray or other custom types.
+        res : e.g. scalar, ndarray or other custom types.
             This is the feature result for the current data (block).
 
         """
@@ -236,7 +243,7 @@ def _validate_featureset(featureset):
 def features_to_featureset(features,
                            new=False,
                            autoinst=False):
-    """Returns an featureset of given features distinct in names.
+    """Returns a featureset of given features distinct in names.
 
     Parameters
     ----------
@@ -254,26 +261,3 @@ def features_to_featureset(features,
         featureset.update(fset)
 
     return _validate_featureset(featureset)
-
-
-# Singletons for features was planned, but not
-# implemented because stateful features would not
-# be threadsafe. But the baseclass for
-# parametrized singletons is implemented in
-# _IndividualBorgs and can be subclassed if
-# multithreading is not needed.
-#
-#
-# class _IndividualBorgs(object):
-#     "Add this as subclass if you want parametrized singletons."
-#     _instances = {}
-#
-#     def __new__(cls, *args, **kwargs):
-#         fid = cls.__name__, str(args), str(kwargs)
-#         if fid not in cls._instances:
-#             instance = object.__new__(cls)
-#             instance._fid = fid
-#             cls._instances[fid] = instance
-#         else:
-#             instance = cls._instances[fid]
-#         return instance

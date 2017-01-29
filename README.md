@@ -2,7 +2,7 @@
 
 Developed with focus on audio signals.
 
-##Architecture
+##Structure
 
 The main base classes are: Source, Feature, Extractor and Sink.
 
@@ -17,17 +17,25 @@ Seven principal classes build up the whole framework:
 7. Result
 
 
+Additionally to the basic framework, some commonly known features,
+useful sources and sinks are implemented. But it is not the focus
+of this project to provide a complete feature collection.
+It is up to the user to define own features, sources
+and sinks. This framework allows many different usage scenarios... be creative.
+
+
 ##Simple Example usage
 
 ```python
 
 from pylab import plt, np
 
-from sigfeat.source import SoundFileSource
-from sigfeat.preprocess import MeanMix
+from sigfeat import Extractor
 from sigfeat import features as fts
+
+from sigfeat.source.soundfile import SoundFileSource
+from sigfeat.preprocess import MeanMix
 from sigfeat.sink import DefaultDictSink
-from sigfeat.extractor import Extractor
 
 
 extractor = Extractor(
@@ -48,3 +56,11 @@ plt.legend()
 plt.show()
 
 ```
+
+## Requirements
+
+The base framework only depends on six (sigfeat.base and sigfeat.extractor).
+
+The namespaces sigfeat.feature .source and .preprocess depend on the
+scipy stack, soundfile and pyfilterbank. It depends on which submodules
+are used.

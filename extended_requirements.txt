@@ -1,0 +1,3 @@
+six
+soundfile
+git+https://github.com/SiggiGue/pyfilterbank.git

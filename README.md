@@ -14,7 +14,7 @@ The key advantages of this library are:
 
 See the [examples](https://github.com/SiggiGue/sigfeat/tree/develop/examples) folder, the [feature](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/feature), [source](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/source) and [sink](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/sink) subpackage to check the intended usage of the library.
 
-Some parts of the library are inspired by [luigi](https://github.com/spotify/luigi).
+Some parts of the library (the parameters subpackage) are inspired by [luigi](https://github.com/spotify/luigi).
 
 ##Simple Example Usage
 

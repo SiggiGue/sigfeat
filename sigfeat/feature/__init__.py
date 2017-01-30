@@ -12,6 +12,7 @@ from .spectral import SpectralSkewness
 from .spectral import SpectralKurtosis
 from .spectral import SpectralFlatness
 from .spectral import SpectralCrestFactor
+from .spectral import SpectralSlope
 
 from .temporal import RootMeanSquare
 from .temporal import CrestFactor
@@ -28,6 +29,7 @@ __all__ = [
     'SpectralKurtosis',
     'SpectralFlatness',
     'SpectralCrestFactor',
+    'SpectralSlope',
     'MFCC',
     'RootMeanSquare',
     'CrestFactor',

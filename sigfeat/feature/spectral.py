@@ -122,6 +122,7 @@ class SpectralCentroid(Feature):
 
 
 class SpectralSpread(SpectralCentroid):
+    # TODO: Test
     """Spread of AbsRfft.
 
     Parameters
@@ -150,6 +151,7 @@ class SpectralSpread(SpectralCentroid):
 
 
 class SpectralSkewness(SpectralCentroid):
+    # TODO: Test
     """Skewness of AbsRfft.
 
     Parameters
@@ -181,6 +183,7 @@ class SpectralSkewness(SpectralCentroid):
 
 
 class SpectralKurtosis(SpectralCentroid):
+    # TODO: Test
     """Kurtosis of AbsRfft.
 
     Parameters
@@ -288,3 +291,18 @@ class SpectralRolloff(Feature):
 
     def process(self, data, result):
         return rolloff(result['AbsRfft'], self.samplerate, self.kappa)
+
+
+class SpectralSlope(Feature):
+    # TODO: Test
+    def requires(self):
+        yield AbsRfft
+
+    def on_start(self, source, features, sink):
+        self.frequencies = np.array([features['AbsRfft'].frequencies]).T
+
+    def process(self, data, resd):
+        absrfft = np.array(resd['AbsRfft'])
+        absrfft -= np.mean(absrfft)
+        w = np.linalg.lstsq(self.frequencies, absrfft)[0]
+        return w[0]

@@ -54,6 +54,11 @@ def centroid(index, values, axis):
     return np.sum(index * values, axis=axis) / np.sum(values, axis=axis)
 
 
+def spread(index, values, centr, axis):
+    return np.sum(
+        (index-centr) * values, axis=axis) / np.sum(values, axis=axis)
+
+
 def flatness(values, axis):
     return gmean(values, axis=axis) / np.mean(values, axis=axis)
 

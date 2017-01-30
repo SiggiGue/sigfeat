@@ -6,7 +6,6 @@ from ..base import HiddenFeature
 from ..base import Parameter
 
 from .common import WindowedSignal
-from .common import centroid
 from .common import crest_factor
 from .common import flatness
 from .common import flux
@@ -76,6 +75,16 @@ class AbsRfft(Rfft):
         return np.abs(featuredata['Rfft'])
 
 
+class SumAbsRfft(Rfft):
+    axis = Parameter(0)
+
+    def requires(self):
+        return [AbsRfft]
+
+    def process(self, data, resd):
+        return np.sum(resd['AbsRfft'], axis=self.axis)
+
+
 class SpectralCentroid(Feature):
     """SpectralCentroid of AbsRfft.
 
@@ -88,7 +97,8 @@ class SpectralCentroid(Feature):
     axis = Parameter(0)
 
     def requires(self):
-        return [AbsRfft]
+        yield AbsRfft
+        yield SumAbsRfft
 
     def on_start(self, source, featureset, sink):
         self.channels = source.channels
@@ -98,10 +108,43 @@ class SpectralCentroid(Feature):
                 self.frequencies,
                 (self.channels, 1)).T
 
-    def process(self, data, featuredata):
-        result = centroid(
+    @staticmethod
+    def centroid(freqs, absrfft, sumabsrfft, axis):
+        return np.sum(freqs * absrfft, axis=axis) / sumabsrfft
+
+    def process(self, data, resd):
+        result = self.centroid(
             self.frequencies,
-            featuredata['AbsRfft'],
+            resd['AbsRfft'],
+            resd['SumAbsRfft'],
+            self.axis)
+        return result
+
+
+class SpectralSpread(SpectralCentroid):
+    """SpectralSpread of AbsRfft.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along the centroid will be calculated, default=0.
+
+    """
+    axis = Parameter(0)
+
+    def requires(self):
+        yield SpectralCentroid().hide(True)
+
+    @staticmethod
+    def spread(freqs, absrfft, sumabsrfft, centroid, axis):
+        return np.sum((freqs-centroid)**2 * absrfft, axis=axis) / sumabsrfft
+
+    def process(self, data, resd):
+        result = self.spread(
+            self.frequencies,
+            resd['AbsRfft'],
+            resd['SumAbsRfft'],
+            resd['SpectralCentroid'],
             self.axis)
         return result
 

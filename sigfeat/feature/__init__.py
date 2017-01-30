@@ -10,6 +10,7 @@ from .mfcc import MFCC
 from .spectral import SpectralFlux
 from .spectral import SpectralRolloff
 from .spectral import SpectralCentroid
+from .spectral import SpectralSpread
 from .spectral import SpectralFlatness
 from .spectral import SpectralCrestFactor
 
@@ -23,6 +24,7 @@ __all__ = [
     'SpectralFlux',
     'SpectralRolloff',
     'SpectralCentroid',
+    'SpectralSpread',
     'SpectralFlatness',
     'SpectralCrestFactor',
     'MFCC',

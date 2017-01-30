@@ -1,7 +1,7 @@
 import pytest
 
+from sigfeat.base import Feature
 from sigfeat.extractor import Extractor
-from sigfeat.feature import Feature
 from sigfeat.source.array import ArraySource
 from sigfeat.sink import DefaultDictSink
 

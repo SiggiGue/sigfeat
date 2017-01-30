@@ -1,6 +1,3 @@
-from ..base import Feature
-from ..base import HiddenFeature
-
 from .common import Index
 
 from .delta import Delta
@@ -11,6 +8,8 @@ from .spectral import SpectralFlux
 from .spectral import SpectralRolloff
 from .spectral import SpectralCentroid
 from .spectral import SpectralSpread
+from .spectral import SpectralSkewness
+from .spectral import SpectralKurtosis
 from .spectral import SpectralFlatness
 from .spectral import SpectralCrestFactor
 
@@ -25,6 +24,8 @@ __all__ = [
     'SpectralRolloff',
     'SpectralCentroid',
     'SpectralSpread',
+    'SpectralSkewness',
+    'SpectralKurtosis',
     'SpectralFlatness',
     'SpectralCrestFactor',
     'MFCC',

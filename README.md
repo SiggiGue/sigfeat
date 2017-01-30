@@ -23,9 +23,7 @@ Some parts of the library (the parameters module) are inspired by [luigi](https:
 from pylab import plt, np
 
 from sigfeat import Extractor
-
 from sigfeat.feature import SpectralFlux, SpectralCentroid, SpectralFlatness
-
 from sigfeat.source.soundfile import SoundFileSource
 from sigfeat.preprocess import MeanMix
 from sigfeat.sink import DefaultDictSink

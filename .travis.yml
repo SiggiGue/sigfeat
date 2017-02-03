@@ -15,6 +15,6 @@ install:
   - pip install numpy
   - pip install -r extended_requirements.txt
 script:
-  - py.test sigfeat/tests/ --cov=sigfeat --cov-report term-missing
+  - py.test sigfeat/tests/ --cov=sigfeat/tests --cov-report term-missing
 after_success:
     - coveralls

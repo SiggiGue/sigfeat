@@ -11,6 +11,8 @@ before_install:
     - pip install coveralls
 install:
   - pip install .
+  - pip install scipy
+  - pip install numpy
   - pip install -r extended_requirements.txt
 script:
   - py.test

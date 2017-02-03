@@ -6,6 +6,6 @@ python:
   - "3.6"
 install:
   - pip install .
-  - pip install --user -r extended_requirements.txt
+  - pip install -r extended_requirements.txt
 script:
 - py.test

@@ -1,9 +1,6 @@
 #**SigFeat**: A Signal Feature Extraction Framework
 
-[![Build Status](https://travis-ci.org/SiggiGue/sigfeat.svg?branch=master)](https://travis-ci.org/SiggiGue/sigfeat)
-
-[![Coverage Status](https://img.shields.io/codecov/c/github/codecov/sigfeat.svg?branch=master)](https://codecov.io/github/SiggiGue/sigfeat?branch=master)
-
+[![Build Status](https://travis-ci.org/SiggiGue/sigfeat.svg?branch=master)](https://travis-ci.org/SiggiGue/sigfeat) [![codecov](https://codecov.io/gh/SiggiGue/sigfeat/branch/master/graph/badge.svg)](https://codecov.io/gh/SiggiGue/sigfeat)
 
 This library is developed with focus on audio signals but it's base functionality is
 generalized to all kinds of (time)-signals.

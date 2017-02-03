@@ -14,7 +14,7 @@ The key advantages of this library are:
 
 See the [examples](https://github.com/SiggiGue/sigfeat/tree/develop/examples) folder, the [feature](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/feature), [source](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/source) and [sink](https://github.com/SiggiGue/sigfeat/tree/develop/sigfeat/sink) subpackage to check the intended usage of the library.
 
-Some parts of the library are inspired by [luigi](https://github.com/spotify/luigi).
+Some parts of the library (the parameters module) are inspired by [luigi](https://github.com/spotify/luigi).
 
 ##Simple Example Usage
 
@@ -23,9 +23,7 @@ Some parts of the library are inspired by [luigi](https://github.com/spotify/lui
 from pylab import plt, np
 
 from sigfeat import Extractor
-
 from sigfeat.feature import SpectralFlux, SpectralCentroid, SpectralFlatness
-
 from sigfeat.source.soundfile import SoundFileSource
 from sigfeat.preprocess import MeanMix
 from sigfeat.sink import DefaultDictSink

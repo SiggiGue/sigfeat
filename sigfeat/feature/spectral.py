@@ -6,7 +6,6 @@ from ..base import HiddenFeature
 from ..base import Parameter
 
 from .common import WindowedSignal
-from .common import centroid
 from .common import crest_factor
 from .common import flatness
 from .common import flux
@@ -30,7 +29,7 @@ class Rfft(HiddenFeature):
 
     def requires(self):
         if self.window:
-            return [WindowedSignal(size=self.nfft)]
+            yield WindowedSignal(size=self.nfft)
         else:
             return []
 
@@ -76,8 +75,18 @@ class AbsRfft(Rfft):
         return np.abs(featuredata['Rfft'])
 
 
+class SumAbsRfft(Rfft):
+    axis = Parameter(0)
+
+    def requires(self):
+        yield AbsRfft
+
+    def process(self, data, resd):
+        return np.sum(resd['AbsRfft'], axis=self.axis)
+
+
 class SpectralCentroid(Feature):
-    """SpectralCentroid of AbsRfft.
+    """Centroid of AbsRfft.
 
     Parameters
     ----------
@@ -88,7 +97,8 @@ class SpectralCentroid(Feature):
     axis = Parameter(0)
 
     def requires(self):
-        return [AbsRfft]
+        yield AbsRfft
+        yield SumAbsRfft
 
     def on_start(self, source, featureset, sink):
         self.channels = source.channels
@@ -98,16 +108,114 @@ class SpectralCentroid(Feature):
                 self.frequencies,
                 (self.channels, 1)).T
 
-    def process(self, data, featuredata):
-        result = centroid(
+    @staticmethod
+    def centroid(freqs, absrfft, sumabsrfft, axis):
+        return np.sum(freqs * absrfft, axis=axis) / sumabsrfft
+
+    def process(self, data, resd):
+        result = self.centroid(
             self.frequencies,
-            featuredata['AbsRfft'],
+            resd['AbsRfft'],
+            resd['SumAbsRfft'],
+            self.axis)
+        return result
+
+
+class SpectralSpread(SpectralCentroid):
+    # TODO: Test
+    """Spread of AbsRfft.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along the centroid will be calculated, default=0.
+
+    """
+    axis = Parameter(0)
+
+    def requires(self):
+        yield SpectralCentroid()
+
+    @staticmethod
+    def spread(freqs, absrfft, sumabsrfft, centroid, axis):
+        return np.sum((freqs-centroid)**2 * absrfft, axis=axis) / sumabsrfft
+
+    def process(self, data, resd):
+        result = self.spread(
+            self.frequencies,
+            resd['AbsRfft'],
+            resd['SumAbsRfft'],
+            resd['SpectralCentroid'],
+            self.axis)
+        return result
+
+
+class SpectralSkewness(SpectralCentroid):
+    # TODO: Test
+    """Skewness of AbsRfft.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along the centroid will be calculated, default=0.
+
+    """
+    axis = Parameter(0)
+
+    def requires(self):
+        yield SpectralCentroid()
+        yield SpectralSpread()
+
+    @staticmethod
+    def skewness(freqs, absrfft, sumabsrfft, centroid, spread, axis):
+        m3 = np.sum((freqs-centroid)**3 * absrfft, axis=axis) / sumabsrfft
+        return m3 / np.sqrt(spread)**3
+
+    def process(self, data, resd):
+        result = self.skewness(
+            self.frequencies,
+            resd['AbsRfft'],
+            resd['SumAbsRfft'],
+            resd['SpectralCentroid'],
+            resd['SpectralSpread'],
+            self.axis)
+        return result
+
+
+class SpectralKurtosis(SpectralCentroid):
+    # TODO: Test
+    """Kurtosis of AbsRfft.
+
+    Parameters
+    ----------
+    axis : int
+        Axis along the centroid will be calculated, default=0.
+
+    """
+    axis = Parameter(0)
+
+    def requires(self):
+        yield SpectralCentroid()
+        yield SpectralSpread()
+
+    @staticmethod
+    def kurtosis(freqs, absrfft, sumabsrfft, centroid, spread, axis):
+        m4 = np.sum((freqs-centroid)**4 * absrfft, axis=axis) / sumabsrfft
+        return m4 / spread**2
+
+    def process(self, data, resd):
+        result = self.kurtosis(
+            self.frequencies,
+            resd['AbsRfft'],
+            resd['SumAbsRfft'],
+            resd['SpectralCentroid'],
+            resd['SpectralSpread'],
             self.axis)
         return result
 
 
 class SpectralFlatness(Feature):
-    """SpectralFlatness of AbsRfft.
+    """Flatness of AbsRfft.
 
     Parameters
     ----------
@@ -118,14 +226,14 @@ class SpectralFlatness(Feature):
     axis = Parameter(0)
 
     def requires(self):
-        return [AbsRfft]
+        yield AbsRfft
 
     def process(self, data, featuredata):
         return flatness(featuredata['AbsRfft'], self.axis)
 
 
 class SpectralFlux(Feature):
-    """SpectralFlux of AbsRfft.
+    """Flux of AbsRfft.
 
     Parameters
     ----------
@@ -136,7 +244,7 @@ class SpectralFlux(Feature):
     axis = Parameter(0)
 
     def requires(self):
-        return [AbsRfft]
+        yield AbsRfft
 
     def on_start(self, source, featureset, sink):
         nfft = featureset['AbsRfft'].nfft
@@ -153,16 +261,16 @@ class SpectralFlux(Feature):
 
 
 class SpectralCrestFactor(Feature):
-    """Spectral Crest Factor"""
+    """Crest Factor of AbsRfft"""
     def requires(self):
-        return [AbsRfft]
+        yield AbsRfft
 
     def process(self, data, result):
         return crest_factor(result['AbsRfft'])
 
 
 class SpectralRolloff(Feature):
-    """Spectral Rolloff from AbsRfft.
+    """Rolloff from AbsRfft.
 
     The spectral rolloff is the frequency where the kappa percentage of
     energy is below and the 1-kappa percentage of energy is above.
@@ -173,13 +281,28 @@ class SpectralRolloff(Feature):
         Default 0.95
     """
 
-    kappa = Parameter(0.85)
+    kappa = Parameter(0.95)
 
     def requires(self):
-        return [AbsRfft]
+        yield AbsRfft
 
     def on_start(self, source, featureset, sink):
         self.samplerate = source.samplerate
 
     def process(self, data, result):
         return rolloff(result['AbsRfft'], self.samplerate, self.kappa)
+
+
+class SpectralSlope(Feature):
+    # TODO: Test
+    def requires(self):
+        yield AbsRfft
+
+    def on_start(self, source, features, sink):
+        self.frequencies = np.array([features['AbsRfft'].frequencies]).T
+
+    def process(self, data, resd):
+        absrfft = np.array(resd['AbsRfft'])
+        absrfft -= np.mean(absrfft)
+        w = np.linalg.lstsq(self.frequencies, absrfft)[0]
+        return w[0]

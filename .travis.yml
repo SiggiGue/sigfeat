@@ -1,11 +1,18 @@
 language: python
 python:
-  - "3.3"
-  - "3.4"
   - "3.5"
   - "3.6"
+addons:
+  apt:
+    packages:
+      - libsndfile1
+before_install:
+    - pip install pytest pytest-cov
+    - pip install coveralls
 install:
   - pip install .
   - pip install -r extended_requirements.txt
 script:
-- py.test
+  - py.test
+after_success:
+    - coveralls

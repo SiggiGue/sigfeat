@@ -24,3 +24,8 @@ def test_delta():
     assert np.mean(np.array(res['ddA']).flatten()[2:]) == 0.0
     assert res['dA'][0] is None
     assert res['ddA'][0] is None
+
+
+if __name__ == '__main__':
+    import pytest
+    pytest.main()  # pragma: no coverage

@@ -42,4 +42,4 @@ def test_sum_mix():
 
 
 if __name__ == '__main__':
-    pytest.main()
+    pytest.main()  # pragma: no coverage

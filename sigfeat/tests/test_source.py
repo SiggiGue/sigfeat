@@ -57,3 +57,6 @@ def test_sound_file_source():
 
     with pytest.raises(Exception):
         src = SoundFileSource('asdlfjhhj987.warv')
+
+if __name__ == '__main__':
+    pytest.main()  # pragma: no coverage

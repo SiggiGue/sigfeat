@@ -56,4 +56,4 @@ def test_spectral_features_no_window_branch():
 
 
 if __name__ == '__main__':
-    pytest.main()
+    pytest.main()  # pragma: no coverage

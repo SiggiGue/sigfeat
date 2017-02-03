@@ -17,4 +17,4 @@ def test_result_setitem():
 
 
 if __name__ == '__main__':
-    pytest.main()
+    pytest.main()  # pragma: no coverage

@@ -159,4 +159,4 @@ def test_features_to_featureset():
         )
 
 if __name__ == '__main__':
-    pytest.main()
+    pytest.main()   # pragma: no coverage

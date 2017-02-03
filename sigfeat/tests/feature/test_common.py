@@ -91,3 +91,8 @@ def test_moments():
     assert abs(v-np.var(x)) < 0.01
     assert abs(s) < 0.2
     assert abs(3-k) < 0.5
+
+
+if __name__ == '__main__':
+    import pytest
+    pytest.main()  # pragma: no coverage

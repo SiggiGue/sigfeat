@@ -1,5 +1,10 @@
 #**sigfeat**: A Signal Feature Extraction Framework
 
+[![Build Status](https://travis-ci.org/SiggiGue/sigfeat.svg?branch=master)](https://travis-ci.org/SiggiGue/sigfeat)
+
+[![Coverage Status](https://coveralls.io/repos/github/SiggiGue/sigfeat/badge.svg?branch=master)](https://coveralls.io/github/SiggiGue/sigfeat?branch=master)
+
+
 This library is developed with focus on audio signals but it's base functionality is
 generalized to all kinds of (time)-signals.
 

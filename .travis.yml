@@ -8,7 +8,7 @@ addons:
       - libsndfile1
 before_install:
     - pip install pytest pytest-cov
-    - pip install coveralls
+    - pip install codecov
 install:
   - pip install .
   - pip install scipy
@@ -17,4 +17,4 @@ install:
 script:
   - py.test sigfeat/tests/ --cov=sigfeat/tests --cov-report term-missing
 after_success:
-    - coveralls
+    - codecov

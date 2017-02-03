@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/SiggiGue/sigfeat.svg?branch=master)](https://travis-ci.org/SiggiGue/sigfeat)
 
-[![Coverage Status](https://coveralls.io/repos/github/SiggiGue/sigfeat/badge.svg?branch=master)](https://coveralls.io/github/SiggiGue/sigfeat?branch=master)
+<a href='https://coveralls.io/github/SiggiGue/sigfeat?branch=master'><img src='https://coveralls.io/repos/github/SiggiGue/sigfeat/badge.svg?branch=master' alt='Coverage Status' /></a>
 
 
 This library is developed with focus on audio signals but it's base functionality is

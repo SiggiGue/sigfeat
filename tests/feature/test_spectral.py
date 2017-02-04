@@ -7,6 +7,10 @@ from sigfeat.feature.spectral import SpectralFlatness
 from sigfeat.feature.spectral import SpectralFlux
 from sigfeat.feature.spectral import SpectralCrestFactor
 from sigfeat.feature.spectral import SpectralRolloff
+from sigfeat.feature.spectral import SpectralSpread
+from sigfeat.feature.spectral import SpectralSkewness
+from sigfeat.feature.spectral import SpectralKurtosis
+from sigfeat.feature.spectral import SpectralSlope
 
 from sigfeat.source.array import ArraySource
 from sigfeat.extractor import Extractor
@@ -20,6 +24,10 @@ def test_spectral_features():
         SpectralFlux(),
         SpectralCrestFactor(),
         SpectralRolloff(),
+        SpectralSpread(),
+        SpectralSkewness(),
+        SpectralKurtosis(),
+        SpectralSlope(),
     ]
     etr = Extractor(*features)
     x = np.sin(1000*2*np.pi*np.linspace(0, 1, 44100))

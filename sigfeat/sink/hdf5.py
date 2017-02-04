@@ -1,8 +1,8 @@
-import h5py
-from datetime import datetime
-import yaml
+import h5py  # pragma: no coverage
+from datetime import datetime  # pragma: no coverage
+import yaml  # pragma: no coverage
 
-from ..base import Sink
+from ..base import Sink  # pragma: no coverage
 
 
 class Hdf5Sink(Sink, h5py.File):  # pragma: no coverage

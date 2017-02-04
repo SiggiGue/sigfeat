@@ -6,27 +6,49 @@ from ..base import HiddenFeature
 from ..base import Parameter
 
 from .common import centroid
-from .common import crest_factor
 from .common import flatness
 from .common import moments
 from .common import zero_crossing_count
 
 
 class CrestFactor(Feature):
-    """Crest Factor of Source data."""
+    """Crest Factor of Source data.
 
-    def process(self, data, result):
-        return crest_factor(data[0])
+    Depends on Peak and RootMeanSquare features.
+
+    .. math::
+        CF_m = \\frac{\max{(|x_m|)}}{x_{m, RMS}}
+
+    Parameters
+    ----------
+    axis: int
+
+    """
+    axis = Parameter(0)
+
+    def requires(self):
+        yield Peak(axis=self.axis)
+        yield RootMeanSquare(axis=self.axis)
+
+    def process(self, data, resd):
+        return resd['Peak'] / resd['RootMeanSquare']
 
 
 class ZeroCrossingRate(Feature):
-    """Zero Crossings Rate of Source data."""
+    """Zero Crossings Rate of Source data.
+
+    .. math::
+        ZCR_m = \\frac{f_s}{N} \\lfloor 0.5 + \\frac{1}{2}
+                \\sum_n |\\mathrm{sgn}(x_m[n+1])-\\mathrm{sgn}(x_m[n])| \\rfloor
+
+    """
+    # TODO axis parameter
 
     def on_start(self, source, featureset, sink):
         self.factor = source.samplerate / source.blocksize
 
     def process(self, data, result):
-        return zero_crossing_count(data[0])*self.factor
+        return zero_crossing_count(data[0]) * self.factor
 
 
 class StatMoments(Feature):
@@ -38,7 +60,12 @@ class StatMoments(Feature):
 
 
 class SquaredSignal(HiddenFeature):
-    """Squared Signal data (as hidden feature)."""
+    """Squared Signal data (as hidden feature).
+
+    .. math::
+        y_m[n] = x_m[n]^2
+
+    """
 
     def process(self, data, result):
         sig = data[0]
@@ -46,7 +73,12 @@ class SquaredSignal(HiddenFeature):
 
 
 class AbsSignal(HiddenFeature):
-    """Abs from source data (as hidden feature)."""
+    """Abs from source data (as hidden feature).
+
+    .. math::
+        y_m[n] = | x_m[n] |
+
+    """
     def process(self, data, result):
         return np.abs(data[0])
 
@@ -54,9 +86,14 @@ class AbsSignal(HiddenFeature):
 class CentroidAbsSignal(Feature):
     """Experimental Centroid of abs source data.
 
+    .. math::
+
+        C = \\frac{\\sum_n t[n]x_m[n]}{
+                \\frac{1}{N}\\sum_n x_m[n]}
+
     Parameters
     ----------
-    axis : int
+    axis: int
         Axis along which the feature is computed.
 
     """
@@ -74,6 +111,11 @@ class CentroidAbsSignal(Feature):
 
 class FlatnessAbsSignal(Feature):
     """Experimental Flatness of abs source data.
+
+    .. math::
+
+        F_m = \\frac{\\left(\\Pi_n |x_m[n]| \\right)^{1/N}}{
+                \\frac{1}{N}\\sum_n |x_m[n]|}
 
     Parameters
     ----------
@@ -93,6 +135,9 @@ class FlatnessAbsSignal(Feature):
 class MeanSquare(HiddenFeature):
     """MeanSquare (MS) of squared Source data.
 
+    .. math::
+        MS_m = \\frac{1}{N}\\sum_n x_m[n]^2
+
     Parameters
     ----------
     axis : int
@@ -111,6 +156,9 @@ class MeanSquare(HiddenFeature):
 class RootMeanSquare(Feature):
     """Root Mean Square (RMS) from Source data.
 
+    .. math::
+        RMS_m = \\sqrt{\\frac{1}{N}\\sum_n x_m[n]^2}
+
     Parameters
     ----------
     axis : int
@@ -128,6 +176,9 @@ class RootMeanSquare(Feature):
 
 class Peak(Feature):
     """Peak of AbsSignal from Source data.
+
+    .. math::
+        P_m = \\max(|x_m|)
 
     Parameters
     ----------

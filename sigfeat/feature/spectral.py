@@ -22,6 +22,7 @@ class Rfft(HiddenFeature):
     window : bool
         Whether to use a window or not. If you need a special window,
         create a WindowedSignal instance.
+
     """
     nfft = Parameter()
     axis = Parameter(default=0)
@@ -55,6 +56,7 @@ class Rfft(HiddenFeature):
 class AbsRfft(Rfft):
     """Absolute Rfft Spectrum feature (hidden per default)
 
+
     Parameters
     ----------
     nfft : int
@@ -87,6 +89,11 @@ class SumAbsRfft(Rfft):
 
 class SpectralCentroid(Feature):
     """Centroid of AbsRfft.
+
+    .. math::
+
+        SC = \\frac{\\sum_k f[k]|X[k]|}{
+                \\frac{1}{K}\\sum_k |X[k]|}
 
     Parameters
     ----------
@@ -125,6 +132,10 @@ class SpectralSpread(SpectralCentroid):
     # TODO: Test
     """Spread of AbsRfft.
 
+    .. math::
+        SSP_m = \\frac{\\sum_k (f[k] SC_m[k])^2 |X_m[k]|}{
+            \\sum_k |X_m[k]|}
+
     Parameters
     ----------
     axis : int
@@ -153,6 +164,10 @@ class SpectralSpread(SpectralCentroid):
 class SpectralSkewness(SpectralCentroid):
     # TODO: Test
     """Skewness of AbsRfft.
+
+    .. math::
+        SSK_m = \\frac{\\sum_k (f[k]-SC_m[k])^3 |X_m[k]|}{
+                \\sqrt{SSP_m}^3\\sum_k |X_m[k]|}
 
     Parameters
     ----------
@@ -186,6 +201,10 @@ class SpectralKurtosis(SpectralCentroid):
     # TODO: Test
     """Kurtosis of AbsRfft.
 
+    .. math::
+        SK_m = \\frac{\\sum_k (f[k]-SC_m[k])^4 |X_m[k]|}{
+            SSP_m^2 \\sum_k |X_m[k]|}
+
     Parameters
     ----------
     axis : int
@@ -217,6 +236,11 @@ class SpectralKurtosis(SpectralCentroid):
 class SpectralFlatness(Feature):
     """Flatness of AbsRfft.
 
+    .. math::
+
+        SF_m = \\frac{\\left(\\Pi_k |X_m[k]| \\right)^{1/K}}{
+                \\frac{1}{K}\\sum_k |X_m[k]|}
+
     Parameters
     ----------
     axis : int
@@ -234,6 +258,14 @@ class SpectralFlatness(Feature):
 
 class SpectralFlux(Feature):
     """Flux of AbsRfft.
+
+    .. math::
+
+        D_m[k] = \\frac{|X_m[k]|}{\\max(|X_m[k]|)} -
+                \\frac{|X_{m-1}[k]|}{\\max(|X_{m-1}[k]|)}
+
+        SFX_m = \\frac{1}{2}\\sum_k D[k]|D[k]|
+
 
     Parameters
     ----------
@@ -261,12 +293,18 @@ class SpectralFlux(Feature):
 
 
 class SpectralCrestFactor(Feature):
-    """Crest Factor of AbsRfft"""
+    """Crest Factor of AbsRfft
+
+    .. math::
+
+        SCF_m = \\frac{\max{(|X_m|)}}{X_{m, RMS}}
+
+    """
     def requires(self):
         yield AbsRfft
 
     def process(self, data, result):
-        return crest_factor(result['AbsRfft'])
+        return crest_factor(result['AbsRfft'])  # TODO decompose
 
 
 class SpectralRolloff(Feature):
@@ -274,6 +312,8 @@ class SpectralRolloff(Feature):
 
     The spectral rolloff is the frequency where the kappa percentage of
     energy is below and the 1-kappa percentage of energy is above.
+
+    # TODO formula
 
     Parameters
     ----------
@@ -294,7 +334,8 @@ class SpectralRolloff(Feature):
 
 
 class SpectralSlope(Feature):
-    # TODO: Test
+    # TODO: Test, doc, formula
+    
     def requires(self):
         yield AbsRfft
 

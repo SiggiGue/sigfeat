@@ -23,6 +23,7 @@ MOCK_MODULES = [
     'numpy',
     'scipy',
     'matplotlib.pyplot',
+    'pylab',
     'scipy.signal',
     'scipy.fftpack',
     'scipy.stats',
@@ -49,6 +50,7 @@ for mod_name in MOCK_MODULES:
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',

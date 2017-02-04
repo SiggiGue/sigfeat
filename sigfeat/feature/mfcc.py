@@ -34,7 +34,7 @@ class MelSpectrum(HiddenFeature):
         )  # TODO scaling by bandwidth not done until now
 
     def process(self, data, resd):
-        return self.melmat @ resd['AbsRfft']
+        return np.dot(self.melmat, resd['AbsRfft'])
 
 
 class LogMelSpectrum(HiddenFeature):

@@ -1,6 +1,10 @@
-#**SigFeat**: A Signal Feature Extraction Framework
+# **SigFeat**: A Signal Feature Extraction Framework
 
-[![Build Status](https://travis-ci.org/SiggiGue/sigfeat.svg?branch=master)](https://travis-ci.org/SiggiGue/sigfeat) [![codecov](https://codecov.io/gh/SiggiGue/sigfeat/branch/master/graph/badge.svg)](https://codecov.io/gh/SiggiGue/sigfeat) [![Documentation Status](https://readthedocs.org/projects/sigfeat/badge/?version=latest)](http://sigfeat.readthedocs.io/en/latest/?badge=latest)
+Build Status: [![Build Status](https://travis-ci.org/SiggiGue/sigfeat.svg?branch=master)](https://travis-ci.org/SiggiGue/sigfeat) 
+
+Test Coverage: [![codecov](https://codecov.io/gh/SiggiGue/sigfeat/branch/master/graph/badge.svg)](https://codecov.io/gh/SiggiGue/sigfeat) 
+
+[Documentation:](http://sigfeat.readthedocs.io/en/latest/?badge=latest) [![Documentation Status](https://readthedocs.org/projects/sigfeat/badge/?version=latest)](http://sigfeat.readthedocs.io/en/latest/?badge=latest)
 
 This library is developed with focus on audio signals but it's base functionality is
 generalized to all kinds of (time)-signals.
@@ -18,7 +22,7 @@ See the [examples](https://github.com/SiggiGue/sigfeat/tree/develop/examples) fo
 
 Some parts of the library (the parameters module) are inspired by [luigi](https://github.com/spotify/luigi).
 
-##Simple Example Usage
+## Simple Example Usage
 
 ```python
 
@@ -54,7 +58,7 @@ plt.show()
 ```
 
 
-##Structure
+## Structure
 
 The main base classes are: Source, Feature, Extractor and Sink.
 

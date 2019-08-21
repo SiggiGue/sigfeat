@@ -74,7 +74,6 @@ Seven principal classes build up the whole framework:
 6. Parameter
 7. Result
 
-[![Coverage Status](https://coveralls.io/repos/github/SiggiGue/sigfeat/badge.svg?branch=master)](https://coveralls.io/github/SiggiGue/sigfeat?branch=master)
 Additionally to the basic framework, some commonly known features,
 useful sources and sinks are implemented. But it is not the focus
 of this project to provide a complete feature collection.

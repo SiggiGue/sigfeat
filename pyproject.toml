@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "sigfeat"
+version = "0.2.0"
+description = "Feature extraction from signals e.g. audio feature extraction."
+authors = ["siegfried.guendert-a-gmail.com"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+six = "^1.12"
+
+[tool.poetry.dev-dependencies]
+scipy = "^1.3"
+pytest = "^5.1"
+soundfile = "^0.10.2"
+pyfilterbank = {git = "https://github.com/SiggiGue/pyfilterbank.git"}
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

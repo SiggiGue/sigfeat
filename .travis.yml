@@ -17,5 +17,7 @@ install:
   - pip install -r extended_requirements.txt
 script:
   - py.test tests/ --cov=sigfeat/ --cov-report term-missing
+notifications:
+  webhooks: https://coveralls.io/webhook
 after_success:
     - coveralls

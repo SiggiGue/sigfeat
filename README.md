@@ -2,7 +2,7 @@
 
 Build Status: [![Build Status](https://travis-ci.org/SiggiGue/sigfeat.svg?branch=master)](https://travis-ci.org/SiggiGue/sigfeat) 
 
-Test Coverage: [![codecov](https://codecov.io/gh/SiggiGue/sigfeat/branch/master/graph/badge.svg)](https://codecov.io/gh/SiggiGue/sigfeat)
+Test Coverage: [![Coverage Status](https://coveralls.io/repos/github/SiggiGue/sigfeat/badge.svg?branch=master)](https://coveralls.io/github/SiggiGue/sigfeat?branch=master)
 
 BCH compliance: [![BCH compliance](https://bettercodehub.com/edge/badge/SiggiGue/sigfeat?branch=master)](https://bettercodehub.com/)
 
@@ -74,7 +74,7 @@ Seven principal classes build up the whole framework:
 6. Parameter
 7. Result
 
-
+[![Coverage Status](https://coveralls.io/repos/github/SiggiGue/sigfeat/badge.svg?branch=master)](https://coveralls.io/github/SiggiGue/sigfeat?branch=master)
 Additionally to the basic framework, some commonly known features,
 useful sources and sinks are implemented. But it is not the focus
 of this project to provide a complete feature collection.

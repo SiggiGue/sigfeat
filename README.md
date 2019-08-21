@@ -2,7 +2,9 @@
 
 Build Status: [![Build Status](https://travis-ci.org/SiggiGue/sigfeat.svg?branch=master)](https://travis-ci.org/SiggiGue/sigfeat) 
 
-Test Coverage: [![codecov](https://codecov.io/gh/SiggiGue/sigfeat/branch/master/graph/badge.svg)](https://codecov.io/gh/SiggiGue/sigfeat) 
+Test Coverage: [![codecov](https://codecov.io/gh/SiggiGue/sigfeat/branch/master/graph/badge.svg)](https://codecov.io/gh/SiggiGue/sigfeat)
+
+BCH compliance: [![BCH compliance](https://bettercodehub.com/edge/badge/SiggiGue/sigfeat?branch=master)](https://bettercodehub.com/)
 
 [Documentation:](http://sigfeat.readthedocs.io/en/latest/?badge=latest) [![Documentation Status](https://readthedocs.org/projects/sigfeat/badge/?version=latest)](http://sigfeat.readthedocs.io/en/latest/?badge=latest)
 

@@ -11,7 +11,7 @@ before_install:
     - pip install pytest pytest-cov
     - pip install python-coveralls
 install:
-  - python setup.py install
+  - python setup.py develop
   - pip install scipy
   - pip install numpy
   - pip install -r extended_requirements.txt

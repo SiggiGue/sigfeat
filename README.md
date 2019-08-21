@@ -81,7 +81,7 @@ It is up to the user to define own features, sources
 and sinks. This framework allows many different usage scenarios... be creative.
 
 
-## Requirements[![Coverage Status](https://coveralls.io/repos/github/SiggiGue/sigfeat/badge.svg?branch=master)](https://coveralls.io/github/SiggiGue/sigfeat?branch=master)
+## Requirements
 
 The base framework only depends on six (sigfeat.base and sigfeat.extractor).
 
